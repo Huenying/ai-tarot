@@ -9,6 +9,8 @@ import CARDS from "@/data/cards";
 interface CardCarouselProps {
   /** Shuffled deck order — position → actual card index (0-77) */
   cardOrder: number[];
+  /** Random reversed state for each card index */
+  reversedState: boolean[];
   selectedIndices: number[];
   onSelect: (index: number) => void;
 }
@@ -25,6 +27,7 @@ const ThreeScene = dynamic(() => import("./ThreeScene"), { ssr: false });
  */
 export default function CardCarousel({
   cardOrder,
+  reversedState,
   selectedIndices,
   onSelect,
 }: CardCarouselProps) {
@@ -210,16 +213,23 @@ export default function CardCarousel({
                   Your 3 cards have been chosen
                 </p>
                 <div className="flex justify-center gap-4 mb-6">
-                  {selectedIndices.map((idx) => (
-                    <motion.div
-                      key={idx}
-                      initial={{ y: 50, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.2 }}
-                    >
-                      <Card card={CARDS[idx]} faceUp={true} />
-                    </motion.div>
-                  ))}
+                  {selectedIndices.map((idx) => {
+                    const isRev = reversedState[idx] || false;
+                    return (
+                      <motion.div
+                        key={idx}
+                        initial={{ y: 50, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                      >
+                        <Card
+                          card={CARDS[idx]}
+                          faceUp={true}
+                          rotation={isRev ? 180 : 0}
+                        />
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </motion.div>
             </div>

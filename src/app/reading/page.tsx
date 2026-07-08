@@ -17,6 +17,11 @@ function shuffle(arr: number[]) {
   return arr;
 }
 
+/** Generate random reversed states for all 78 cards */
+function randomReversed(): boolean[] {
+  return Array.from({ length: 78 }, () => Math.random() < 0.5);
+}
+
 export default function ReadingPage() {
   const router = useRouter();
   const [phase, setPhase] = useState<ReadingPhase>("washing");
@@ -28,8 +33,12 @@ export default function ReadingPage() {
     shuffle(Array.from({ length: 78 }, (_, i) => i))
   );
 
+  // Random reversed state for each card index — re-randomized on each wash
+  const [reversedState, setReversedState] = useState<boolean[]>(() => randomReversed());
+
   const handleWash = useCallback(() => {
     setShuffledOrder((prev) => shuffle([...prev]));
+    setReversedState(randomReversed());
   }, []);
 
   const handleConfirm = () => {
@@ -58,12 +67,15 @@ export default function ReadingPage() {
     if (phase === "complete") {
       const timer = setTimeout(() => {
         const params = new URLSearchParams();
-        selectedIndices.forEach((idx) => params.append("cards", String(idx)));
+        selectedIndices.forEach((idx, i) => {
+          params.append("cards", String(idx));
+          params.append("rev", reversedState[idx] ? "1" : "0");
+        });
         router.push(`/result?${params.toString()}`);
       }, 2500);
       return () => clearTimeout(timer);
     }
-  }, [phase, router, selectedIndices]);
+  }, [phase, router, selectedIndices, reversedState]);
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-deepest-black">
@@ -89,6 +101,7 @@ export default function ReadingPage() {
       {phase === "carousel" && (
         <CardCarousel
           cardOrder={shuffledOrder}
+          reversedState={reversedState}
           selectedIndices={selectedIndices}
           onSelect={handleSelect}
         />

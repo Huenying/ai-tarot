@@ -138,27 +138,42 @@ function CardMeaningPanel({
 
 export default function ResultPage() {
   const [isClient, setIsClient] = useState(false);
-  const [reversed, setReversed] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Read card IDs from URL after hydration
-  const cardIds: number[] = useMemo(() => {
-    if (!isClient) return [];
+  // Read card IDs and reversed flags from URL after hydration
+  const { cardIds, revDefaults } = useMemo(() => {
     const ids: number[] = [];
-    try {
-      const params = new URLSearchParams(window.location.search);
-      for (const v of params.getAll("cards")) {
-        const n = Number(v);
-        if (!isNaN(n)) ids.push(n);
+    const revs: boolean[] = [];
+    if (typeof window !== "undefined") {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const cardParams = params.getAll("cards");
+        const revParams = params.getAll("rev");
+        cardParams.forEach((v) => {
+          const n = Number(v);
+          if (!isNaN(n)) ids.push(n);
+        });
+        revParams.forEach((v) => {
+          revs.push(v === "1");
+        });
+      } catch {
+        // ignore
       }
-    } catch {
-      // ignore
     }
-    return ids;
+    return { cardIds: ids, revDefaults: revs };
   }, [isClient]);
+
+  // Initialize reversed state from URL — one flag per selected card
+  const [reversed, setReversed] = useState<Record<number, boolean>>(() => {
+    const init: Record<number, boolean> = {};
+    revDefaults.forEach((r, i) => {
+      init[i] = r;
+    });
+    return init;
+  });
 
   // Resolve enriched cards from IDs — safe lookup by .id property
   const selectedCards: EnrichedCard[] = useMemo(() => {
@@ -241,7 +256,7 @@ export default function ResultPage() {
                   {positionLabels[i] || `Card ${i + 1}`}
                 </span>
 
-                {/* Card (face-up) */}
+                {/* Card (face-up) — rotated if reversed */}
                 <div
                   className="cursor-pointer mb-4"
                   onClick={() => toggleReversed(i)}
@@ -250,6 +265,7 @@ export default function ResultPage() {
                     card={card as any}
                     faceUp={true}
                     selected={true}
+                    rotation={isRev ? 180 : 0}
                     className="shadow-2xl"
                   />
                 </div>
