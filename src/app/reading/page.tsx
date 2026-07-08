@@ -50,6 +50,12 @@ export default function ReadingPage() {
   useEffect(() => {
     if (selectedIndices.length >= 3 && phase === "carousel") {
       setPhase("complete");
+    }
+  }, [selectedIndices.length, phase, setPhase]);
+
+  // Separate effect: navigate after a delay — no cleanup conflict with phase changes
+  useEffect(() => {
+    if (phase === "complete") {
       const timer = setTimeout(() => {
         const params = new URLSearchParams();
         selectedIndices.forEach((idx) => params.append("cards", String(idx)));
@@ -57,7 +63,7 @@ export default function ReadingPage() {
       }, 2500);
       return () => clearTimeout(timer);
     }
-  }, [selectedIndices.length, phase, router, selectedIndices]);
+  }, [phase, router, selectedIndices]);
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-deepest-black">
