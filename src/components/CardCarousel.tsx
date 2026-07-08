@@ -203,10 +203,10 @@ export default function CardCarousel({
                 transition={{ type: "spring", stiffness: 300, damping: 15 }}
               >
                 <div className="text-5xl mb-4">✨</div>
-                <p className="text-primary-gold font-heading text-2xl tracking-wider mb-2">
+                <p className="text-brilliant-gold font-heading text-2xl tracking-wider mb-2">
                   Cards Selected
                 </p>
-                <p className="text-warm-stone text-sm mb-6">
+                <p className="text-brilliant-gold/70 text-sm mb-6">
                   Your 3 cards have been chosen
                 </p>
                 <div className="flex justify-center gap-4 mb-6">
