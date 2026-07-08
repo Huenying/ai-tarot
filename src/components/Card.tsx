@@ -1,0 +1,164 @@
+"use client";
+
+import { motion } from "framer-motion";
+import Image from "next/image";
+import type { CardDefinition } from "@/data/cards";
+
+interface CardProps {
+  card: CardDefinition;
+  faceUp?: boolean;
+  highlighted?: boolean;
+  selected?: boolean;
+  grabbed?: boolean;
+  style?: React.CSSProperties;
+  className?: string;
+  onClick?: () => void;
+  /** Rotation angle in degrees (for scattered cards) */
+  rotation?: number;
+  /** Carousel-specific: is this card in the center/front zone? */
+  isFocused?: boolean;
+}
+
+export default function Card({
+  card,
+  faceUp = false,
+  highlighted = false,
+  selected = false,
+  grabbed = false,
+  style,
+  className = "",
+  onClick,
+  rotation = 0,
+  isFocused = false,
+}: CardProps) {
+  return (
+    <motion.div
+      className={`
+        relative w-[80px] h-[120px] md:w-[90px] md:h-[140px] cursor-pointer select-none
+        ${highlighted ? "z-50" : "z-10"}
+        ${selected ? "z-50" : ""}
+        ${className}
+      `}
+      style={style}
+      onClick={onClick}
+      animate={{
+        scale: highlighted ? 1.15 : grabbed ? 0.95 : selected ? 1.1 : 1,
+        rotateZ: rotation,
+        filter: highlighted
+          ? "brightness(1.2) drop-shadow(0 0 15px rgba(43,76,126,0.5))"
+          : grabbed
+          ? "brightness(1.1) drop-shadow(0 0 20px rgba(43,76,126,0.3))"
+          : selected
+          ? "brightness(1.15) drop-shadow(0 0 12px rgba(43,76,126,0.4))"
+          : "brightness(1) drop-shadow(0 0 0px rgba(0,0,0,0))",
+      }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+    >
+      <motion.div
+        className="relative w-full h-full"
+        style={{ transformStyle: "preserve-3d", willChange: "transform" }}
+        animate={{
+          rotateY: faceUp ? 180 : 0,
+        }}
+        transition={{ type: "spring", stiffness: 200, damping: 25 }}
+      >
+        {/* Card Back */}
+        <div
+          className="absolute inset-0 rounded-lg backface-hidden overflow-hidden"
+          style={{
+            background: "linear-gradient(135deg, #E0DFE8 0%, #CECDDA 50%, #E0DFE8 100%)",
+            border: "1px solid rgba(230, 198, 135, 0.4)",
+          }}
+        >
+          <Image
+            src="/images/card-cover.jpeg"
+            alt="Card Back"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1C2D42]/60 to-transparent" />
+          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[6px] text-primary-gold/50 font-heading whitespace-nowrap">
+            TAROT
+          </div>
+        </div>
+
+        {/* Card Front */}
+        <div
+          className="absolute inset-0 rounded-lg backface-hidden overflow-hidden"
+          style={{
+            transform: "rotateY(180deg)",
+            background: "linear-gradient(160deg, #E8E7EE 0%, #D5D4DD 50%, #F0EFF5 100%)",
+            border: "1px solid rgba(230, 198, 135, 0.5)",
+          }}
+        >
+          {/* Ornamental border */}
+          <div className="absolute inset-[3px] rounded-[6px] border border-primary-gold/20" />
+
+          {/* Suit symbol (for minor arcana) */}
+          {card.suit && (
+            <div className="absolute top-2 left-2 text-[10px] leading-none">
+              {card.suit === "wands" && <span className="text-primary-gold">⚑</span>}
+              {card.suit === "cups" && <span className="text-warm-gold">♡</span>}
+              {card.suit === "swords" && <span className="text-light-sand">⚔</span>}
+              {card.suit === "pentacles" && <span className="text-rich-gold">⭔</span>}
+            </div>
+          )}
+
+          {/* Arcana indicator */}
+          {card.type === "major" && (
+            <div className="absolute top-2 right-2 text-[8px] text-brilliant-gold/60 font-heading leading-none">
+              M
+            </div>
+          )}
+
+          {/* Card Name */}
+          <div className="absolute inset-0 flex items-center justify-center p-2">
+            <span className="text-[9px] md:text-[10px] font-heading text-center leading-tight"
+              style={{
+                color: card.type === "major" ? "#E6C687" : "#1C2D42",
+                textShadow: card.type === "major"
+                  ? "0 0 10px rgba(230,198,135,0.3)"
+                  : "none",
+              }}
+            >
+              {card.name}
+            </span>
+          </div>
+
+          {/* Bottom suit */}
+          {card.suit && (
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] leading-none">
+              {card.suit === "wands" && <span className="text-primary-gold">⚑</span>}
+              {card.suit === "cups" && <span className="text-warm-gold">♡</span>}
+              {card.suit === "swords" && <span className="text-light-sand">⚔</span>}
+              {card.suit === "pentacles" && <span className="text-rich-gold">⭔</span>}
+            </div>
+          )}
+        </div>
+      </motion.div>
+
+      {/* Selection indicator */}
+      {selected && (
+        <motion.div
+          className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-primary-gold flex items-center justify-center z-50"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 500, damping: 20 }}
+        >
+          <span className="text-white text-[10px] font-bold">✓</span>
+        </motion.div>
+      )}
+
+      {/* Highlight glow */}
+      {highlighted && (
+        <div
+          className="absolute inset-[-4px] rounded-xl z-[-1]"
+          style={{
+            boxShadow: "0 0 25px 5px rgba(230, 198, 135, 0.5), 0 0 60px 15px rgba(230, 198, 135, 0.15)",
+          }}
+        />
+      )}
+    </motion.div>
+  );
+}
