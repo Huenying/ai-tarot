@@ -86,24 +86,34 @@ function CardCarouselInner({
   const goLeft = useCallback(() => {
     const candidates = availablePositions.filter((p) => p < currentPos);
     if (candidates.length > 0) {
-      // Jump ~6 positions on each wave fire for a larger scroll
-      const targetIndex = Math.min(5, candidates.length - 1);
-      setCurrentPos(candidates.sort((a, b) => b - a)[targetIndex]);
+      if (mode === "hand") {
+        // Hand mode: jump ~6 positions for a larger scroll
+        const targetIndex = Math.min(5, candidates.length - 1);
+        setCurrentPos(candidates.sort((a, b) => b - a)[targetIndex]);
+      } else {
+        // Mouse mode: one click = one card
+        setCurrentPos(Math.max(...candidates));
+      }
     } else if (availablePositions.length > 0) {
       setCurrentPos(Math.max(...availablePositions));
     }
-  }, [currentPos, availablePositions]);
+  }, [currentPos, availablePositions, mode]);
 
   const goRight = useCallback(() => {
     const candidates = availablePositions.filter((p) => p > currentPos);
     if (candidates.length > 0) {
-      // Jump ~6 positions on each wave fire for a larger scroll
-      const targetIndex = Math.min(5, candidates.length - 1);
-      setCurrentPos(candidates.sort((a, b) => a - b)[targetIndex]);
+      if (mode === "hand") {
+        // Hand mode: jump ~6 positions for a larger scroll
+        const targetIndex = Math.min(5, candidates.length - 1);
+        setCurrentPos(candidates.sort((a, b) => a - b)[targetIndex]);
+      } else {
+        // Mouse mode: one click = one card
+        setCurrentPos(Math.min(...candidates));
+      }
     } else if (availablePositions.length > 0) {
       setCurrentPos(Math.min(...availablePositions));
     }
-  }, [currentPos, availablePositions]);
+  }, [currentPos, availablePositions, mode]);
 
   const selectCurrent = useCallback(() => {
     if (!isSelectedPos(currentPos)) {
