@@ -25,7 +25,7 @@ function generatePositions() {
   }));
 }
 
-export default function CardWash({ exiting, onWash, onConfirm, mode = "mouse", washSignal = 0 }: CardWashProps) {
+export default function CardWash({ exiting, onWash, onConfirm, mode, washSignal = 0 }: CardWashProps) {
   const [positions, setPositions] = useState(() => generatePositions());
   const [isWashing, setIsWashing] = useState(false);
   const [washCount, setWashCount] = useState(0);

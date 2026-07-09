@@ -39,7 +39,7 @@ export default function ReadingPage() {
   });
 
   // Interaction mode from URL
-  const [mode, setMode] = useState<InteractionMode>("mouse");
+  const [mode, setMode] = useState<InteractionMode | null>(null);
 
   // Read mode from URL on mount
   useEffect(() => {
@@ -47,8 +47,9 @@ export default function ReadingPage() {
       const params = new URLSearchParams(window.location.search);
       const m = params.get("mode");
       if (m === "hand") setMode("hand");
+      else setMode("mouse");
     } catch {
-      // ignore
+      setMode("mouse");
     }
   }, []);
 
@@ -62,9 +63,8 @@ export default function ReadingPage() {
     selectCurrent: () => void;
   } | null>(null);
 
-  // Hand tracking (only active in hand mode)
-  // handleWash is declared below but only invoked later by gesture callbacks,
-  // so the closure captures the binding correctly — no TDZ issue at call time
+  // Hand tracking (only active when mode === "hand")
+  const handTrackingEnabled = mode === "hand";
   const handTracking = useHandTracking({
     callbacks: {
       onWash: () => {
@@ -76,8 +76,8 @@ export default function ReadingPage() {
       onNavigateRight: () => carouselApi.current?.goRight(),
       onSelect: () => carouselApi.current?.selectCurrent(),
     },
-    phase: mode === "hand" ? phase : "idle",
-    enabled: mode === "hand",
+    phase: handTrackingEnabled ? phase : "idle",
+    enabled: handTrackingEnabled,
   });
 
   const handleWash = useCallback(() => {
@@ -136,8 +136,8 @@ export default function ReadingPage() {
         }}
       />
 
-      {/* Phase 1: Washing */}
-      {phase === "washing" && (
+      {/* Phase 1: Washing — only render once mode is resolved */}
+      {mode && phase === "washing" && (
         <CardWash
           exiting={exitingWash}
           onWash={handleWash}
@@ -147,8 +147,8 @@ export default function ReadingPage() {
         />
       )}
 
-      {/* Phase 2: Carousel — uses shuffled deck order from washing */}
-      {phase === "carousel" && (
+      {/* Phase 2: Carousel — only render once mode is resolved */}
+      {mode && phase === "carousel" && (
         <CardCarousel
           cardOrder={shuffledOrder}
           selectedIndices={selectedIndices}
