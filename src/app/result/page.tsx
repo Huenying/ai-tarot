@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Card from "@/components/Card";
@@ -9,7 +9,7 @@ import { majorArcana } from "tarot-card-meanings";
 
 // ─────────────────────────────────────────────────────────────────
 //  Merged card lookup — npm package for Major Arcana (richer),
-//  local data for Minor Arcana (only source with all 78 cards)
+//  local data for Minor Arcana
 // ─────────────────────────────────────────────────────────────────
 
 interface EnrichedCard {
@@ -62,17 +62,15 @@ const ENRICHED = buildEnrichedCards();
 function CardMeaningPanel({
   card,
   isReversed,
-  onToggle,
 }: {
   card: EnrichedCard;
   isReversed: boolean;
-  onToggle: () => void;
 }) {
   const meaning = isReversed ? card.reversed : card.upright;
 
   return (
     <div className="w-full max-w-[280px] md:max-w-[320px]">
-      {/* Card name + orientation toggle */}
+      {/* Card name + static orientation indicator */}
       <div className="flex items-center justify-between mb-2">
         <div>
           <h3 className="text-[#2B4C7E] font-heading text-sm tracking-wider leading-tight">
@@ -84,16 +82,15 @@ function CardMeaningPanel({
             </span>
           )}
         </div>
-        <button
-          onClick={onToggle}
-          className={`text-[9px] px-2 py-0.5 border transition-colors ${
+        <span
+          className={`text-[9px] px-2 py-0.5 border ${
             isReversed
-              ? "border-[#E6C687]/30 text-[#E6C687]/70 hover:border-[#E6C687]/60"
-              : "border-[#2B4C7E]/30 text-[#2B4C7E]/70 hover:border-[#2B4C7E]/60"
+              ? "border-[#E6C687]/30 text-[#E6C687]/70"
+              : "border-[#2B4C7E]/30 text-[#2B4C7E]/70"
           }`}
         >
           {isReversed ? "Reversed" : "Upright"}
-        </button>
+        </span>
       </div>
 
       {/* Main meaning */}
@@ -101,7 +98,7 @@ function CardMeaningPanel({
         &ldquo;{meaning}&rdquo;
       </p>
 
-      {/* Keywords tag chips (from npm package) */}
+      {/* Keywords tag chips */}
       {card.keywords && (
         <div className="flex flex-wrap gap-1.5 mb-2.5">
           {card.keywords.map((kw) => (
@@ -115,15 +112,15 @@ function CardMeaningPanel({
         </div>
       )}
 
-      {/* Category mini-grid — show reversed meaning for love/career when reversed */}
+      {/* Category mini-grid */}
       <div className="grid grid-cols-1 gap-1.5 text-[10px]">
         <div className="flex items-start gap-2 p-1.5 border border-[#2B4C7E]/5 bg-[#F0EFF5]/60 rounded-sm">
           <span className="text-[#3D5470] shrink-0">❤ Love</span>
-          <span className="text-[#1C2D42]">{isReversed ? meaning : card.love}</span>
+          <span className="text-[#1C2D42]">{meaning}</span>
         </div>
         <div className="flex items-start gap-2 p-1.5 border border-[#2B4C7E]/5 bg-[#F0EFF5]/60 rounded-sm">
           <span className="text-[#3D5470] shrink-0">💼 Career</span>
-          <span className="text-[#1C2D42]">{isReversed ? meaning : card.career}</span>
+          <span className="text-[#1C2D42]">{meaning}</span>
         </div>
         <div className="flex items-start gap-2 p-1.5 border border-[#2B4C7E]/5 bg-[#F0EFF5]/60 rounded-sm">
           <span className="text-[#3D5470] shrink-0">❓ Yes or No</span>
@@ -138,13 +135,12 @@ function CardMeaningPanel({
 
 export default function ResultPage() {
   const [isClient, setIsClient] = useState(false);
-  const [reversed, setReversed] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Read card IDs and their reversed status from URL after hydration
+  // Read card IDs and their fixed reversed status from URL
   const cardData: { id: number; isReversed: boolean }[] = useMemo(() => {
     if (!isClient) return [];
     const ids: number[] = [];
@@ -161,33 +157,23 @@ export default function ResultPage() {
     } catch {
       // ignore
     }
-    // Pair them up — if rev count mismatch, default to upright
     return ids.map((id, i) => ({ id, isReversed: revs[i] ?? false }));
   }, [isClient]);
 
-  // Initialize reversed state from URL data (runs once on mount)
-  useEffect(() => {
-    if (cardData.length > 0) {
-      const initial: Record<number, boolean> = {};
-      cardData.forEach((d, i) => { initial[i] = d.isReversed; });
-      setReversed(initial);
-    }
-  }, [cardData]);
-
-  // Resolve enriched cards from IDs — safe lookup by .id property
-  const selectedCards: EnrichedCard[] = useMemo(() => {
+  // Resolve enriched cards from IDs
+  const selectedCards: { card: EnrichedCard; isReversed: boolean }[] = useMemo(() => {
     return cardData
-      .map((d) => LOCAL_CARDS.find((c) => c.id === d.id))
-      .filter(Boolean)
-      .map((c) => ENRICHED.get(c!.name))
-      .filter((c): c is EnrichedCard => c !== undefined);
+      .map((d) => {
+        const local = LOCAL_CARDS.find((c) => c.id === d.id);
+        if (!local) return null;
+        const enriched = ENRICHED.get(local.name);
+        if (!enriched) return null;
+        return { card: enriched, isReversed: d.isReversed };
+      })
+      .filter(Boolean) as { card: EnrichedCard; isReversed: boolean }[];
   }, [cardData]);
 
-  const toggleReversed = useCallback((pos: number) => {
-    setReversed((prev) => ({ ...prev, [pos]: !prev[pos] }));
-  }, []);
-
-  // ── Loading state until client hydration ──
+  // ── Loading state ──
   if (!isClient) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#F0EFF5" }}>
@@ -240,45 +226,38 @@ export default function ResultPage() {
       {/* ── Cards + Meaning Boxes ── */}
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row justify-center items-start gap-8 md:gap-10">
-          {selectedCards.map((card, i) => {
-            const isRev = reversed[i] || false;
-            return (
-              <motion.div
-                key={card.id}
-                className="flex flex-col items-center w-full md:w-auto"
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: i * 0.25 }}
-              >
-                {/* Position label */}
-                <span className="text-[10px] text-[#3D5470] font-heading tracking-widest mb-3 uppercase">
-                  {positionLabels[i] || `Card ${i + 1}`}
-                </span>
+          {selectedCards.map(({ card, isReversed }, i) => (
+            <motion.div
+              key={card.id}
+              className="flex flex-col items-center w-full md:w-auto"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: i * 0.25 }}
+            >
+              {/* Position label */}
+              <span className="text-[10px] text-[#3D5470] font-heading tracking-widest mb-3 uppercase">
+                {positionLabels[i] || `Card ${i + 1}`}
+              </span>
 
-                {/* Card (face-up) */}
-                <div
-                  className="cursor-pointer mb-4"
-                  onClick={() => toggleReversed(i)}
-                >
-                  <Card
-                    card={card as any}
-                    faceUp={true}
-                    selected={true}
-                    className="shadow-2xl"
-                  />
-                </div>
+              {/* Card (face-up, no click/toggle) */}
+              <div className="mb-4">
+                <Card
+                  card={card as any}
+                  faceUp={true}
+                  selected={true}
+                  className="shadow-2xl"
+                />
+              </div>
 
-                {/* Meaning box under card */}
-                <div className="p-3 border border-[#2B4C7E]/10 bg-[#E0DFE8]/50 w-full rounded-sm">
-                  <CardMeaningPanel
-                    card={card}
-                    isReversed={isRev}
-                    onToggle={() => toggleReversed(i)}
-                  />
-                </div>
-              </motion.div>
-            );
-          })}
+              {/* Meaning box under card */}
+              <div className="p-3 border border-[#2B4C7E]/10 bg-[#E0DFE8]/50 w-full rounded-sm">
+                <CardMeaningPanel
+                  card={card}
+                  isReversed={isReversed}
+                />
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
 
@@ -290,9 +269,6 @@ export default function ResultPage() {
         >
           New Reading
         </Link>
-        <p className="text-[#3D5470] text-[10px] italic">
-          Click a card to toggle between upright / reversed
-        </p>
       </div>
 
       {/* ── Footer ── */}
