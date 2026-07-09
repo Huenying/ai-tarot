@@ -13,6 +13,16 @@ interface CardCarouselProps {
   onSelect: (index: number) => void;
   /** Per-card reversed state (keyed by card index) — for overlay display */
   reversedMap?: Record<number, boolean>;
+  /** Interaction mode */
+  mode?: "mouse" | "hand";
+  /** Ref filled with imperative API for hand-mode navigation */
+  carouselApi?: React.MutableRefObject<{
+    goLeft: () => void;
+    goRight: () => void;
+    selectCurrent: () => void;
+  } | null>;
+  /** Hold progress 0-1 for palm-hold select ring animation */
+  holdProgress?: number;
 }
 
 // Dynamically import Three.js scene (browser-only)
@@ -24,12 +34,18 @@ const ThreeScene = dynamic(() => import("./ThreeScene"), { ssr: false });
  * Cards float in a cylinder arrangement — all face-down showing
  * the card-cover.jpeg back. User navigates with ◀ ▶ buttons and the
  * cylinder spins smoothly. Front card is highlighted with a gold glow.
+ *
+ * In hand mode, left/right swipe gestures and palm-hold-to-select
+ * are handled externally via carouselApi ref.
  */
-export default function CardCarousel({
+function CardCarouselInner({
   cardOrder,
   selectedIndices,
   onSelect,
   reversedMap = {},
+  mode = "mouse",
+  carouselApi,
+  holdProgress = 0,
 }: CardCarouselProps) {
   const [currentPos, setCurrentPos] = useState(0); // position in the cylinder
   const [mounted, setMounted] = useState(false);
@@ -70,7 +86,9 @@ export default function CardCarousel({
   const goLeft = useCallback(() => {
     const candidates = availablePositions.filter((p) => p < currentPos);
     if (candidates.length > 0) {
-      setCurrentPos(Math.max(...candidates));
+      // Jump ~6 positions on each wave fire for a larger scroll
+      const targetIndex = Math.min(5, candidates.length - 1);
+      setCurrentPos(candidates.sort((a, b) => b - a)[targetIndex]);
     } else if (availablePositions.length > 0) {
       setCurrentPos(Math.max(...availablePositions));
     }
@@ -79,21 +97,41 @@ export default function CardCarousel({
   const goRight = useCallback(() => {
     const candidates = availablePositions.filter((p) => p > currentPos);
     if (candidates.length > 0) {
-      setCurrentPos(Math.min(...candidates));
+      // Jump ~6 positions on each wave fire for a larger scroll
+      const targetIndex = Math.min(5, candidates.length - 1);
+      setCurrentPos(candidates.sort((a, b) => a - b)[targetIndex]);
     } else if (availablePositions.length > 0) {
       setCurrentPos(Math.min(...availablePositions));
     }
   }, [currentPos, availablePositions]);
 
-  const handleSelect = useCallback(() => {
+  const selectCurrent = useCallback(() => {
     if (!isSelectedPos(currentPos)) {
       onSelect(currentCardIndex);
     }
   }, [currentPos, isSelectedPos, onSelect, currentCardIndex]);
 
+  const handleSelect = useCallback(() => {
+    selectCurrent();
+  }, [selectCurrent]);
+
   const currentSelected = isSelectedPos(currentPos);
   const canNav = availablePositions.length > 0;
   const showOverlay = selectedIndices.length >= 3;
+
+  // Directly set carouselApi ref for hand-mode control
+  useEffect(() => {
+    if (carouselApi) {
+      carouselApi.current = { goLeft, goRight, selectCurrent };
+    }
+    return () => {
+      if (carouselApi) carouselApi.current = null;
+    };
+  }, [carouselApi, goLeft, goRight, selectCurrent]);
+
+  // In hand mode, holdProgress > 0 means palm is shown — hook handles the 1s timeout.
+  // Lateral palm motion (slap) is handled by the hook's swipe detection → carouselApi → goLeft/goRight.
+  // No auto-rotation.
 
   return (
     <div
@@ -106,8 +144,16 @@ export default function CardCarousel({
       {/* ===== Selection counter ===== */}
       <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[9999] text-center pointer-events-none">
         <p className="text-primary-gold font-heading text-sm md:text-base tracking-wider">
-          Select your cards
+          {mode === "hand" ? "Select your cards with gestures" : "Select your cards"}
         </p>
+        {/* Hand mode instruction (auto-rotation removed — slap/swipe to navigate) */}
+        {mode === "hand" && !showOverlay && (
+          <p className="text-[#3D5470] text-[9px] mt-1 tracking-wider">
+            {holdProgress > 0
+              ? "👌 Hold OK sign to select..."
+              : "🖐️ Wave palm to move cylinder · 👌 OK sign 1s to select"}
+          </p>
+        )}
         <div className="flex items-center justify-center gap-2 mt-2">
           {[0, 1, 2].map((i) => (
             <div
@@ -126,7 +172,7 @@ export default function CardCarousel({
       {mounted && (
         <div className="absolute inset-0 z-0">
           <Suspense fallback={null}>
-            <ThreeScene currentIndex={currentPos} totalCards={NUM} />
+            <ThreeScene currentIndex={currentPos} totalCards={NUM} holdProgress={holdProgress} />
           </Suspense>
         </div>
       )}
@@ -232,3 +278,5 @@ export default function CardCarousel({
     </div>
   );
 }
+
+export default CardCarouselInner;

@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import CardWash from "@/components/CardWash";
 import CardCarousel from "@/components/CardCarousel";
+import CameraOverlay from "@/components/CameraOverlay";
+import { useHandTracking } from "@/hooks/useHandTracking";
 
 type ReadingPhase = "washing" | "carousel" | "complete";
+type InteractionMode = "mouse" | "hand";
 
 /** Fisher-Yates shuffle (in-place, returns the array) */
 function shuffle(arr: number[]) {
@@ -33,6 +36,48 @@ export default function ReadingPage() {
     const map: Record<number, boolean> = {};
     for (let i = 0; i < 78; i++) map[i] = Math.random() < 0.5;
     return map;
+  });
+
+  // Interaction mode from URL
+  const [mode, setMode] = useState<InteractionMode>("mouse");
+
+  // Read mode from URL on mount
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const m = params.get("mode");
+      if (m === "hand") setMode("hand");
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  // Incremented each time a gesture-triggered wash fires (triggers CardWash visual animation)
+  const [washSignal, setWashSignal] = useState(0);
+
+  // Ref-based carousel controls for hand mode
+  const carouselApi = useRef<{
+    goLeft: () => void;
+    goRight: () => void;
+    selectCurrent: () => void;
+  } | null>(null);
+
+  // Hand tracking (only active in hand mode)
+  // handleWash is declared below but only invoked later by gesture callbacks,
+  // so the closure captures the binding correctly — no TDZ issue at call time
+  const handTracking = useHandTracking({
+    callbacks: {
+      onWash: () => {
+        handleWash();
+        setWashSignal((s) => s + 1); // trigger CardWash visual animation
+      },
+      onConfirm: () => handleConfirm(),
+      onNavigateLeft: () => carouselApi.current?.goLeft(),
+      onNavigateRight: () => carouselApi.current?.goRight(),
+      onSelect: () => carouselApi.current?.selectCurrent(),
+    },
+    phase: mode === "hand" ? phase : "idle",
+    enabled: mode === "hand",
   });
 
   const handleWash = useCallback(() => {
@@ -97,6 +142,8 @@ export default function ReadingPage() {
           exiting={exitingWash}
           onWash={handleWash}
           onConfirm={handleConfirm}
+          mode={mode}
+          washSignal={washSignal}
         />
       )}
 
@@ -107,6 +154,9 @@ export default function ReadingPage() {
           selectedIndices={selectedIndices}
           onSelect={handleSelect}
           reversedMap={reversedMap}
+          mode={mode}
+          carouselApi={carouselApi}
+          holdProgress={handTracking.holdProgress}
         />
       )}
 
@@ -144,6 +194,21 @@ export default function ReadingPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Hand mode camera overlay */}
+      {mode === "hand" && (
+        <CameraOverlay
+          video={handTracking.videoRef.current}
+          canvasRef={handTracking.canvasRef}
+          isTracking={handTracking.isTracking}
+          cameraReady={handTracking.cameraReady}
+          gesture={handTracking.gesture}
+          error={handTracking.error}
+          phase={phase}
+          holdProgress={handTracking.holdProgress}
+          squeezeProgress={handTracking.squeezeProgress}
+        />
+      )}
     </main>
   );
 }

@@ -107,7 +107,7 @@ export default function Card({
 
           {/* Arcana indicator */}
           {card.type === "major" && (
-            <div className="absolute top-2 right-2 text-[8px] text-brilliant-gold/60 font-heading leading-none">
+            <div className="absolute top-2 right-2 text-[8px] text-[#A57C2A]/80 font-heading leading-none">
               M
             </div>
           )}
@@ -116,10 +116,8 @@ export default function Card({
           <div className="absolute inset-0 flex items-center justify-center p-2">
             <span className="text-[9px] md:text-[10px] font-heading text-center leading-tight"
               style={{
-                color: card.type === "major" ? "#E6C687" : "#1C2D42",
-                textShadow: card.type === "major"
-                  ? "0 0 10px rgba(230,198,135,0.3)"
-                  : "none",
+                color: card.type === "major" ? "#A57C2A" : "#1C2D42",
+                textShadow: "none",
               }}
             >
               {card.name}

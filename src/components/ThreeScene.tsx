@@ -17,27 +17,32 @@ function CylinderCard({
   angle,
   radius,
   isFocused,
+  holdProgress,
 }: {
   angle: number;
   radius: number;
   isFocused: boolean;
+  holdProgress: number;
 }) {
   const pivotRef = useRef<THREE.Group>(null);
   const glowRef = useRef<THREE.Mesh>(null);
+  const ringRef = useRef<THREE.Mesh>(null);
 
   const texture = useTexture("/images/card-cover.jpeg");
 
   useFrame((state) => {
     if (pivotRef.current) {
-      // 1) All cards float in sync (same sin phase)
       pivotRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.6) * 0.15;
-
-      // 2) Always face the camera (billboard)
       pivotRef.current.lookAt(state.camera.position);
     }
     if (glowRef.current) {
       const mat = glowRef.current.material as THREE.MeshBasicMaterial;
       mat.opacity = 0.25 + Math.sin(state.clock.elapsedTime * 1.2) * 0.12;
+    }
+    // Pulse the ring as holdProgress fills
+    if (ringRef.current && holdProgress > 0) {
+      const mat = ringRef.current.material as THREE.MeshBasicMaterial;
+      mat.opacity = 0.4 + holdProgress * 0.5;
     }
   });
 
@@ -84,6 +89,36 @@ function CylinderCard({
             />
           </mesh>
         )}
+
+        {/* Progress ring around the card (only during palm hold) */}
+        {isFocused && holdProgress > 0 && (
+          <group position={[0, 0, 0.02]}>
+            {/* Full dim background ring */}
+            <mesh>
+              <ringGeometry args={[CARD_W * 0.65, CARD_W * 0.75, 48]} />
+              <meshBasicMaterial
+                color="#E6C687"
+                transparent
+                opacity={0.12}
+                side={THREE.DoubleSide}
+                depthWrite={false}
+              />
+            </mesh>
+            {/* Progress arc — rotates so it fills from the top */}
+            <mesh ref={ringRef} rotation={[0, 0, -Math.PI / 2]}>
+              <ringGeometry
+                args={[CARD_W * 0.65, CARD_W * 0.75, 48, 1, 0, holdProgress * Math.PI * 2]}
+              />
+              <meshBasicMaterial
+                color="#E6C687"
+                transparent
+                opacity={0.6}
+                side={THREE.DoubleSide}
+                depthWrite={false}
+              />
+            </mesh>
+          </group>
+        )}
       </group>
     </group>
   );
@@ -96,13 +131,14 @@ function CylinderCard({
 function CarouselScene({
   currentIndex,
   totalCards,
+  holdProgress,
 }: {
   currentIndex: number;
   totalCards: number;
+  holdProgress: number;
 }) {
   const groupRef = useRef<THREE.Group>(null);
 
-  // Smooth rotation toward target
   const targetRotation = -currentIndex * ((2 * Math.PI) / totalCards);
 
   useFrame((_, delta) => {
@@ -140,6 +176,7 @@ function CarouselScene({
           angle={c.angle}
           radius={RADIUS}
           isFocused={i === currentIndex}
+          holdProgress={i === currentIndex ? holdProgress : 0}
         />
       ))}
     </group>
@@ -153,9 +190,11 @@ function CarouselScene({
 export default function ThreeScene({
   currentIndex,
   totalCards,
+  holdProgress = 0,
 }: {
   currentIndex: number;
   totalCards: number;
+  holdProgress?: number;
 }) {
   return (
     <Canvas
@@ -167,7 +206,11 @@ export default function ThreeScene({
 
       <ambientLight intensity={0.6} />
 
-      <CarouselScene currentIndex={currentIndex} totalCards={totalCards} />
+      <CarouselScene
+        currentIndex={currentIndex}
+        totalCards={totalCards}
+        holdProgress={holdProgress}
+      />
     </Canvas>
   );
 }

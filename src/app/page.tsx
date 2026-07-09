@@ -1,10 +1,30 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { requestCameraPermission } from "@/lib/camera-store";
 
 export default function LandingPage() {
   const router = useRouter();
+  const [cameraLoading, setCameraLoading] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+
+  const handleMotionMode = async () => {
+    setCameraLoading(true);
+    setCameraError(null);
+    try {
+      await requestCameraPermission();
+      router.push("/reading?mode=hand");
+    } catch (err: any) {
+      const msg =
+        err.name === "NotAllowedError"
+          ? "Camera access denied. Please allow camera in your browser settings and try again."
+          : "Could not access camera. Please check your camera and try again.";
+      setCameraError(msg);
+      setCameraLoading(false);
+    }
+  };
 
   return (
     <main className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden">
@@ -70,26 +90,80 @@ export default function LandingPage() {
           Silently hold your question within
         </motion.p>
 
-        {/* Start Button */}
-        <motion.button
-          className="
-            relative px-10 py-3 font-heading text-sm md:text-base tracking-[0.2em] uppercase
-            border border-primary-gold/50 text-primary-gold
-            transition-all duration-300
-            hover:bg-primary-gold/10 hover:border-primary-gold hover:shadow-[0_0_30px_rgba(43,76,126,0.15)]
-          "
-          onClick={() => router.push("/reading")}
+        {/* Mode Selection */}
+        <motion.div
+          className="flex flex-col md:flex-row gap-4 md:gap-6 w-full max-w-xl"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.2 }}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
         >
-          Begin Reading
-          <span className="absolute inset-0 overflow-hidden rounded-none pointer-events-none">
-            <span className="absolute inset-0 -translate-x-full hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-primary-gold/10 to-transparent" />
-          </span>
-        </motion.button>
+          {/* Mouse Mode */}
+          <motion.button
+            className="
+              flex-1 px-6 py-5 font-heading
+              border border-primary-gold/40 text-primary-gold
+              hover:bg-primary-gold/10 hover:border-primary-gold
+              hover:shadow-[0_0_30px_rgba(43,76,126,0.15)]
+              transition-all duration-300 text-left
+            "
+            onClick={() => router.push("/reading?mode=mouse")}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <div className="text-xl mb-2">🖱</div>
+            <div className="text-sm md:text-base tracking-[0.15em] uppercase mb-1">
+              Mouse Mode
+            </div>
+            <div className="text-[10px] md:text-xs text-taupe leading-relaxed font-normal lowercase">
+              Use your mouse to wash, navigate and select cards
+            </div>
+          </motion.button>
+
+          {/* Motion Mode */}
+          <motion.button
+            className={`
+              flex-1 px-6 py-5 font-heading text-left
+              border transition-all duration-300
+              ${cameraLoading
+                ? "border-brilliant-gold/30 text-brilliant-gold/50 cursor-wait"
+                : "border-brilliant-gold/50 text-brilliant-gold hover:bg-brilliant-gold/10 hover:border-brilliant-gold hover:shadow-[0_0_25px_rgba(230,198,135,0.2)]"
+              }
+            `}
+            onClick={handleMotionMode}
+            disabled={cameraLoading}
+            whileHover={cameraLoading ? {} : { scale: 1.02 }}
+            whileTap={cameraLoading ? {} : { scale: 0.97 }}
+          >
+            <div className="text-xl mb-2">✋</div>
+            <div className="text-sm md:text-base tracking-[0.15em] uppercase mb-1">
+              {cameraLoading ? "Requesting Camera..." : "Motion Mode"}
+            </div>
+            <div className="text-[10px] md:text-xs text-taupe leading-relaxed font-normal lowercase">
+              {cameraLoading
+                ? "Please allow camera access when prompted..."
+                : "Use hand gestures via camera to wash, navigate and select"}
+            </div>
+          </motion.button>
+        </motion.div>
+
+        {/* Camera permission error */}
+        {cameraError && (
+          <motion.div
+            className="mt-6 px-4 py-3 border border-[#E6C687]/40 bg-[#E6C687]/5 max-w-xl mx-auto"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <p className="text-[#E6C687] text-[11px] leading-relaxed">
+              ⚠ {cameraError}
+            </p>
+            <button
+              className="mt-2 text-[10px] text-[#2B4C7E] underline hover:text-[#E6C687] tracking-wider"
+              onClick={() => { setCameraError(null); handleMotionMode(); }}
+            >
+              Try again
+            </button>
+          </motion.div>
+        )}
       </div>
 
       {/* Bottom ornament */}

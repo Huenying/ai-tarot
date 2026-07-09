@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import Card from "./Card";
 import CARDS from "@/data/cards";
@@ -9,6 +9,9 @@ interface CardWashProps {
   exiting: boolean;
   onWash: () => void;
   onConfirm: () => void;
+  mode?: "mouse" | "hand";
+  /** Incremented externally to trigger a gesture-based wash animation */
+  washSignal?: number;
 }
 
 /** Generate random scattered positions for messy card layout */
@@ -22,10 +25,19 @@ function generatePositions() {
   }));
 }
 
-export default function CardWash({ exiting, onWash, onConfirm }: CardWashProps) {
+export default function CardWash({ exiting, onWash, onConfirm, mode = "mouse", washSignal = 0 }: CardWashProps) {
   const [positions, setPositions] = useState(() => generatePositions());
   const [isWashing, setIsWashing] = useState(false);
   const [washCount, setWashCount] = useState(0);
+
+  // External trigger for gesture-based washing animation
+  useEffect(() => {
+    if (washSignal === 0) return; // skip initial mount
+    setIsWashing(true);
+    setPositions(generatePositions());
+    setWashCount((c) => c + 1);
+    setTimeout(() => setIsWashing(false), 600);
+  }, [washSignal]);
 
   const handleWash = useCallback(() => {
     setIsWashing(true);
@@ -43,7 +55,9 @@ export default function CardWash({ exiting, onWash, onConfirm }: CardWashProps) 
           Shuffle the Deck
         </p>
         <p className="text-warm-stone text-xs mt-1">
-          Wash the cards until you feel ready, then confirm to proceed
+          {mode === "hand"
+            ? "Open or close your hand to wash — OK sign 👌 to confirm"
+            : "Wash the cards until you feel ready, then confirm to proceed"}
         </p>
       </div>
 
@@ -87,7 +101,8 @@ export default function CardWash({ exiting, onWash, onConfirm }: CardWashProps) 
         </div>
       )}
 
-      {/* Bottom buttons */}
+      {/* Bottom buttons — hidden in hand mode (gestures only) */}
+      {mode !== "hand" && (
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-row items-center gap-4">
         {/* Wash button — always visible */}
         <motion.button
@@ -120,6 +135,7 @@ export default function CardWash({ exiting, onWash, onConfirm }: CardWashProps) 
           ✦ Confirm and Proceed ✦
         </motion.button>
       </div>
+      )}
     </div>
   );
 }
