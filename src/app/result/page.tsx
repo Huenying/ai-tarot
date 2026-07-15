@@ -1,15 +1,14 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Card from "@/components/Card";
 import LOCAL_CARDS from "@/data/cards";
 import { majorArcana } from "tarot-card-meanings";
 
 // ─────────────────────────────────────────────────────────────────
-//  Merged card lookup — npm package for Major Arcana (richer),
-//  local data for Minor Arcana
+//  Merged card lookup
 // ─────────────────────────────────────────────────────────────────
 
 interface EnrichedCard {
@@ -58,64 +57,99 @@ function buildEnrichedCards(): Map<string, EnrichedCard> {
 const ENRICHED = buildEnrichedCards();
 
 // ─────────────────────────────────────────────────────────────────
+//  Expandable meaning panel
+// ─────────────────────────────────────────────────────────────────
 
 function CardMeaningPanel({
   card,
   isReversed,
+  expanded,
+  onToggle,
 }: {
   card: EnrichedCard;
   isReversed: boolean;
+  expanded: boolean;
+  onToggle: () => void;
 }) {
   const meaning = isReversed ? card.reversed : card.upright;
 
   return (
     <div className="w-full max-w-[280px] md:max-w-[360px]">
-      {/* Card name + static orientation indicator */}
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-[#2B4C7E] font-heading text-base md:text-lg tracking-wider leading-tight">
-          {card.name}
-        </h3>
-        <span
-          className={`text-[11px] px-3 py-1 border ${
-            isReversed
-              ? "border-[#A57C2A]/40 text-[#A57C2A] font-semibold"
-              : "border-[#2B4C7E]/30 text-[#2B4C7E] font-semibold"
-          }`}
+      {/* Title bar — always visible after flip, clickable to expand */}
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between px-3 py-2 border border-[#2B4C7E]/10 bg-[#E0DFE8]/50 hover:bg-[#E0DFE8] transition-colors duration-200 text-left cursor-pointer rounded-sm"
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <h3 className="text-[#2B4C7E] font-heading text-sm md:text-base tracking-wider leading-tight truncate">
+            {card.name}
+          </h3>
+          <span
+            className={`shrink-0 text-[9px] px-2 py-0.5 border ${
+              isReversed
+                ? "border-[#A57C2A]/40 text-[#A57C2A] font-semibold"
+                : "border-[#2B4C7E]/30 text-[#2B4C7E] font-semibold"
+            }`}
+          >
+            {isReversed ? "Reversed" : "Upright"}
+          </span>
+        </div>
+        <motion.span
+          className="text-[#3D5470] text-sm ml-2 shrink-0"
+          animate={{ rotateX: expanded ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
         >
-          {isReversed ? "Reversed" : "Upright"}
-        </span>
-      </div>
+          ▼
+        </motion.span>
+      </button>
 
-      {/* Keywords tag chips */}
-      {card.keywords && (
-        <div className="flex flex-wrap gap-2 mb-3">
-          {card.keywords.map((kw) => (
-            <span
-              key={kw}
-              className="text-[10px] px-2 py-1 rounded-sm bg-[#2B4C7E]/10 text-[#3D5470] uppercase tracking-wider"
-            >
-              {kw}
-            </span>
-          ))}
-        </div>
-      )}
+      {/* Expandable content */}
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <motion.div
+            key="content"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="pt-2 px-1">
+              {/* Keywords */}
+              {card.keywords && (
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {card.keywords.map((kw) => (
+                    <span
+                      key={kw}
+                      className="text-[9px] px-1.5 py-0.5 rounded-sm bg-[#2B4C7E]/10 text-[#3D5470] uppercase tracking-wider"
+                    >
+                      {kw}
+                    </span>
+                  ))}
+                </div>
+              )}
 
-      {/* Category rows */}
-      <div className="grid grid-cols-1 gap-2 text-xs md:text-sm">
-        {/* Combined Love / Career row */}
-        <div className="flex items-start gap-2 p-2 border border-[#2B4C7E]/5 bg-[#F0EFF5]/60 rounded-sm">
-          <span className="text-[#3D5470] shrink-0 whitespace-nowrap">❤ Love / 💼 Career</span>
-          <span className="text-[#1C2D42]">{meaning}</span>
-        </div>
-        <div className="flex items-start gap-2 p-2 border border-[#2B4C7E]/5 bg-[#F0EFF5]/60 rounded-sm">
-          <span className="text-[#3D5470] shrink-0">❓ Yes or No</span>
-          <span className="text-[#1C2D42]">{card.yesno}</span>
-        </div>
-      </div>
+              {/* Combined Love / Career */}
+              <div className="flex items-start gap-2 p-2 mb-1.5 border border-[#2B4C7E]/5 bg-[#F0EFF5]/60 rounded-sm text-xs md:text-sm">
+                <span className="text-[#3D5470] shrink-0 whitespace-nowrap">❤ Love / 💼 Career</span>
+                <span className="text-[#1C2D42]">{meaning}</span>
+              </div>
+
+              {/* Yes / No */}
+              <div className="flex items-start gap-2 p-2 border border-[#2B4C7E]/5 bg-[#F0EFF5]/60 rounded-sm text-xs md:text-sm">
+                <span className="text-[#3D5470] shrink-0">❓ Yes or No</span>
+                <span className="text-[#1C2D42]">{card.yesno}</span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
+// ─────────────────────────────────────────────────────────────────
+//  Result page
 // ─────────────────────────────────────────────────────────────────
 
 export default function ResultPage() {
@@ -125,7 +159,7 @@ export default function ResultPage() {
     setIsClient(true);
   }, []);
 
-  // Read card IDs and their fixed reversed status from URL
+  // Read card IDs and reversed status from URL
   const cardData: { id: number; isReversed: boolean }[] = useMemo(() => {
     if (!isClient) return [];
     const ids: number[] = [];
@@ -145,7 +179,7 @@ export default function ResultPage() {
     return ids.map((id, i) => ({ id, isReversed: revs[i] ?? false }));
   }, [isClient]);
 
-  // Resolve enriched cards from IDs
+  // Resolve enriched cards
   const selectedCards: { card: EnrichedCard; isReversed: boolean }[] = useMemo(() => {
     return cardData
       .map((d) => {
@@ -157,6 +191,27 @@ export default function ResultPage() {
       })
       .filter(Boolean) as { card: EnrichedCard; isReversed: boolean }[];
   }, [cardData]);
+
+  // ── Flip & expand state ──
+  const [flippedCards, setFlippedCards] = useState<Set<number>>(new Set());
+  const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
+
+  const handleFlip = (index: number) => {
+    setFlippedCards((prev) => {
+      const next = new Set(prev);
+      next.add(index);
+      return next;
+    });
+  };
+
+  const handleToggleExpand = (index: number) => {
+    setExpandedCards((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  };
 
   // ── Loading state ──
   if (!isClient) {
@@ -204,48 +259,66 @@ export default function ResultPage() {
         </h1>
         <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#2B4C7E]/50 to-transparent mx-auto mb-4" />
         <p className="text-[#3D5470] text-sm max-w-md mx-auto">
-          Three cards have chosen you. Reflect on their meanings and how they speak to your question.
+          Click each card to reveal its message
         </p>
       </div>
 
-      {/* ── Cards + Meaning Boxes ── */}
+      {/* ── Cards ── */}
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row justify-center items-start gap-8 md:gap-10">
-          {selectedCards.map(({ card, isReversed }, i) => (
-            <motion.div
-              key={card.id}
-              className="flex flex-col items-center w-full md:w-auto"
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: i * 0.25 }}
-            >
-              {/* Position label */}
-              <span className="text-xs md:text-sm text-[#3D5470] font-heading tracking-widest mb-3 uppercase">
-                {positionLabels[i] || `Card ${i + 1}`}
-              </span>
+          {selectedCards.map(({ card, isReversed }, i) => {
+            const isFlipped = flippedCards.has(i);
 
-              {/* Card (face-up, no click/toggle, large clean display) */}
-              <div className="mb-5">
-                <Card
-                  card={card as any}
-                  faceUp={true}
-                  size="lg"
-                  showName={false}
-                  hideOverlay={true}
-                  rotation={isReversed ? 180 : 0}
-                  className="shadow-2xl"
-                />
-              </div>
+            return (
+              <motion.div
+                key={card.id}
+                className="flex flex-col items-center w-full md:w-auto"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: i * 0.25 }}
+              >
+                {/* Position label */}
+                <span className="text-xs md:text-sm text-[#3D5470] font-heading tracking-widest mb-3 uppercase">
+                  {positionLabels[i] || `Card ${i + 1}`}
+                </span>
 
-              {/* Meaning box under card */}
-              <div className="p-3 border border-[#2B4C7E]/10 bg-[#E0DFE8]/50 w-full rounded-sm">
-                <CardMeaningPanel
-                  card={card}
-                  isReversed={isReversed}
-                />
-              </div>
-            </motion.div>
-          ))}
+                {/* Card — click to flip */}
+                <div className="mb-4">
+                  <div onClick={() => !isFlipped && handleFlip(i)}>
+                    <Card
+                      card={card as any}
+                      faceUp={isFlipped}
+                      size="lg"
+                      showName={false}
+                      hideOverlay={true}
+                      rotation={isReversed ? 180 : 0}
+                      className={`${!isFlipped ? "cursor-pointer hover:scale-[1.03] transition-transform" : ""} shadow-2xl`}
+                    />
+                  </div>
+                </div>
+
+                {/* Title bar + expandable meaning (appears after flip) */}
+                <AnimatePresence>
+                  {isFlipped && (
+                    <motion.div
+                      key="panel"
+                      className="w-full"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.15 }}
+                    >
+                      <CardMeaningPanel
+                        card={card}
+                        isReversed={isReversed}
+                        expanded={expandedCards.has(i)}
+                        onToggle={() => handleToggleExpand(i)}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
 
