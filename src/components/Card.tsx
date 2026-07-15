@@ -18,6 +18,12 @@ interface CardProps {
   rotation?: number;
   /** Carousel-specific: is this card in the center/front zone? */
   isFocused?: boolean;
+  /** Size variant — "lg" for result page display */
+  size?: "sm" | "lg";
+  /** Show card name text on front face */
+  showName?: boolean;
+  /** Hide decorative overlay/gradient for clean image display */
+  hideOverlay?: boolean;
 }
 
 export default function Card({
@@ -31,11 +37,18 @@ export default function Card({
   onClick,
   rotation = 0,
   isFocused = false,
+  size = "sm",
+  showName = true,
+  hideOverlay = false,
 }: CardProps) {
+  const sizeClasses = size === "lg"
+    ? "w-[160px] h-[240px] md:w-[200px] md:h-[300px]"
+    : "w-[80px] h-[120px] md:w-[90px] md:h-[140px]";
+
   return (
     <motion.div
       className={`
-        relative w-[80px] h-[120px] md:w-[90px] md:h-[140px] cursor-pointer select-none
+        relative ${sizeClasses} cursor-pointer select-none
         ${highlighted ? "z-50" : "z-10"}
         ${selected ? "z-50" : ""}
         ${className}
@@ -103,14 +116,14 @@ export default function Card({
             loading="lazy"
           />
 
-          {/* Dark gradient overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1C2D42]/70 via-[#1C2D42]/20 to-[#1C2D42]/30" />
+          {/* Dark gradient overlay (hidden on result page for clean image) */}
+          {!hideOverlay && <div className="absolute inset-0 bg-gradient-to-t from-[#1C2D42]/70 via-[#1C2D42]/20 to-[#1C2D42]/30" />}
 
           {/* Ornamental border */}
-          <div className="absolute inset-[3px] rounded-[6px] border border-white/20" />
+          {!hideOverlay && <div className="absolute inset-[3px] rounded-[6px] border border-white/20" />}
 
           {/* Suit symbol (for minor arcana) */}
-          {card.suit && (
+          {!hideOverlay && card.suit && (
             <div className="absolute top-2 left-2 text-[10px] leading-none z-10">
               {card.suit === "wands" && <span className="text-white/80">⚑</span>}
               {card.suit === "cups" && <span className="text-white/80">♡</span>}
@@ -120,21 +133,23 @@ export default function Card({
           )}
 
           {/* Arcana indicator */}
-          {card.type === "major" && (
+          {!hideOverlay && card.type === "major" && (
             <div className="absolute top-2 right-2 text-[8px] text-white/60 font-heading leading-none z-10">
               M
             </div>
           )}
 
-          {/* Card Name */}
-          <div className="absolute inset-0 flex items-center justify-center p-2 z-10">
-            <span className="text-white text-[9px] md:text-[10px] font-heading text-center leading-tight font-bold drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
-              {card.name}
-            </span>
-          </div>
+          {/* Card Name (hidden on result page as requested) */}
+          {showName && (
+            <div className="absolute inset-0 flex items-center justify-center p-2 z-10">
+              <span className="text-white text-[9px] md:text-[10px] font-heading text-center leading-tight font-bold drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+                {card.name}
+              </span>
+            </div>
+          )}
 
           {/* Bottom suit */}
-          {card.suit && (
+          {!hideOverlay && card.suit && (
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] leading-none z-10">
               {card.suit === "wands" && <span className="text-white/80">⚑</span>}
               {card.suit === "cups" && <span className="text-white/80">♡</span>}

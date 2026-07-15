@@ -72,16 +72,9 @@ function CardMeaningPanel({
     <div className="w-full max-w-[280px] md:max-w-[360px]">
       {/* Card name + static orientation indicator */}
       <div className="flex items-center justify-between mb-3">
-        <div>
-          <h3 className="text-[#2B4C7E] font-heading text-base md:text-lg tracking-wider leading-tight">
-            {card.name}
-          </h3>
-          {card.element && (
-            <span className="text-[11px] text-[#BDBDCC] uppercase tracking-widest">
-              {card.element} · {card.planet}
-            </span>
-          )}
-        </div>
+        <h3 className="text-[#2B4C7E] font-heading text-base md:text-lg tracking-wider leading-tight">
+          {card.name}
+        </h3>
         <span
           className={`text-[11px] px-3 py-1 border ${
             isReversed
@@ -92,11 +85,6 @@ function CardMeaningPanel({
           {isReversed ? "Reversed" : "Upright"}
         </span>
       </div>
-
-      {/* Main meaning */}
-      <p className="text-[#1C2D42] text-sm md:text-base leading-relaxed mb-3 italic">
-        &ldquo;{meaning}&rdquo;
-      </p>
 
       {/* Keywords tag chips */}
       {card.keywords && (
@@ -112,14 +100,11 @@ function CardMeaningPanel({
         </div>
       )}
 
-      {/* Category mini-grid */}
+      {/* Category rows */}
       <div className="grid grid-cols-1 gap-2 text-xs md:text-sm">
+        {/* Combined Love / Career row */}
         <div className="flex items-start gap-2 p-2 border border-[#2B4C7E]/5 bg-[#F0EFF5]/60 rounded-sm">
-          <span className="text-[#3D5470] shrink-0">❤ Love</span>
-          <span className="text-[#1C2D42]">{meaning}</span>
-        </div>
-        <div className="flex items-start gap-2 p-2 border border-[#2B4C7E]/5 bg-[#F0EFF5]/60 rounded-sm">
-          <span className="text-[#3D5470] shrink-0">💼 Career</span>
+          <span className="text-[#3D5470] shrink-0 whitespace-nowrap">❤ Love / 💼 Career</span>
           <span className="text-[#1C2D42]">{meaning}</span>
         </div>
         <div className="flex items-start gap-2 p-2 border border-[#2B4C7E]/5 bg-[#F0EFF5]/60 rounded-sm">
@@ -239,12 +224,15 @@ export default function ResultPage() {
                 {positionLabels[i] || `Card ${i + 1}`}
               </span>
 
-              {/* Card (face-up, no click/toggle) */}
-              <div className="mb-4">
+              {/* Card (face-up, no click/toggle, large clean display) */}
+              <div className="mb-5">
                 <Card
                   card={card as any}
                   faceUp={true}
-                  selected={true}
+                  size="lg"
+                  showName={false}
+                  hideOverlay={true}
+                  rotation={isReversed ? 180 : 0}
                   className="shadow-2xl"
                 />
               </div>
