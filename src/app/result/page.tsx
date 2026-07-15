@@ -291,7 +291,7 @@ export default function ResultPage() {
                       size="lg"
                       showName={false}
                       hideOverlay={true}
-                      rotation={isReversed ? 180 : 0}
+                      rotation={isFlipped && isReversed ? 180 : 0}
                       className={`${!isFlipped ? "cursor-pointer hover:scale-[1.03] transition-transform" : ""} shadow-2xl`}
                     />
                   </div>
