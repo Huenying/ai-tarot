@@ -324,6 +324,14 @@ export default function ResultPage() {
 
       {/* ── Action buttons ── */}
       <div className="flex flex-col items-center mt-12 gap-4">
+        {/* Unlock AI Insight — passes card data to chat page */}
+        <Link
+          href={`/chat?${cardData.map((d) => `cards=${d.id}&rev=${d.isReversed ? "1" : "0"}`).join("&")}`}
+          className="px-8 py-2.5 border border-brilliant-gold/50 text-brilliant-gold font-heading text-sm tracking-[0.15em] hover:bg-brilliant-gold/10 hover:shadow-[0_0_25px_rgba(165,124,42,0.2)] transition-all duration-300"
+        >
+          🔮 Unlock AI Insight
+        </Link>
+
         <Link
           href="/"
           className="px-8 py-2.5 border border-[#2B4C7E]/40 text-[#2B4C7E] font-heading text-sm tracking-[0.15em] hover:bg-[#2B4C7E]/10 hover:shadow-[0_0_30px_rgba(43,76,126,0.15)] transition-all duration-300"
