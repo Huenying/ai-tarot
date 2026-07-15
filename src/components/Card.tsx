@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import type { CardDefinition } from "@/data/cards";
+import { getCardImageSrc } from "@/lib/card-images";
 
 interface CardProps {
   card: CardDefinition;
@@ -92,46 +93,53 @@ export default function Card({
             border: "1px solid rgba(165, 124, 42, 0.5)",
           }}
         >
+          {/* Card face image (unique per card) */}
+          <Image
+            src={getCardImageSrc(card.id) || "/images/card-cover.jpeg"}
+            alt={card.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 80px, 90px"
+            loading="lazy"
+          />
+
+          {/* Dark gradient overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1C2D42]/70 via-[#1C2D42]/20 to-[#1C2D42]/30" />
+
           {/* Ornamental border */}
-          <div className="absolute inset-[3px] rounded-[6px] border border-primary-gold/20" />
+          <div className="absolute inset-[3px] rounded-[6px] border border-white/20" />
 
           {/* Suit symbol (for minor arcana) */}
           {card.suit && (
-            <div className="absolute top-2 left-2 text-[10px] leading-none">
-              {card.suit === "wands" && <span className="text-primary-gold">⚑</span>}
-              {card.suit === "cups" && <span className="text-warm-gold">♡</span>}
-              {card.suit === "swords" && <span className="text-light-sand">⚔</span>}
-              {card.suit === "pentacles" && <span className="text-rich-gold">⭔</span>}
+            <div className="absolute top-2 left-2 text-[10px] leading-none z-10">
+              {card.suit === "wands" && <span className="text-white/80">⚑</span>}
+              {card.suit === "cups" && <span className="text-white/80">♡</span>}
+              {card.suit === "swords" && <span className="text-white/80">⚔</span>}
+              {card.suit === "pentacles" && <span className="text-white/80">⭔</span>}
             </div>
           )}
 
           {/* Arcana indicator */}
           {card.type === "major" && (
-            <div className="absolute top-2 right-2 text-[8px] text-[#A57C2A]/80 font-heading leading-none">
+            <div className="absolute top-2 right-2 text-[8px] text-white/60 font-heading leading-none z-10">
               M
             </div>
           )}
 
           {/* Card Name */}
-          <div className="absolute inset-0 flex items-center justify-center p-2">
-            <span className="text-[9px] md:text-[10px] font-heading text-center leading-tight"
-              style={{
-                color: card.type === "major" ? "#A57C2A" : "#1C2D42",
-                textShadow: "none",
-                fontWeight: card.type === "major" ? 700 : 500,
-              }}
-            >
+          <div className="absolute inset-0 flex items-center justify-center p-2 z-10">
+            <span className="text-white text-[9px] md:text-[10px] font-heading text-center leading-tight font-bold drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
               {card.name}
             </span>
           </div>
 
           {/* Bottom suit */}
           {card.suit && (
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] leading-none">
-              {card.suit === "wands" && <span className="text-primary-gold">⚑</span>}
-              {card.suit === "cups" && <span className="text-warm-gold">♡</span>}
-              {card.suit === "swords" && <span className="text-light-sand">⚔</span>}
-              {card.suit === "pentacles" && <span className="text-rich-gold">⭔</span>}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] leading-none z-10">
+              {card.suit === "wands" && <span className="text-white/80">⚑</span>}
+              {card.suit === "cups" && <span className="text-white/80">♡</span>}
+              {card.suit === "swords" && <span className="text-white/80">⚔</span>}
+              {card.suit === "pentacles" && <span className="text-white/80">⭔</span>}
             </div>
           )}
         </div>
