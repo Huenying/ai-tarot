@@ -102,17 +102,17 @@ export default function Card({
           className="absolute inset-0 rounded-lg backface-hidden overflow-hidden"
           style={{
             transform: "rotateY(180deg)",
-            background: "linear-gradient(160deg, #E8E7EE 0%, #D5D4DD 50%, #F0EFF5 100%)",
+            background: "#F0EFF5",
             border: "1px solid rgba(165, 124, 42, 0.5)",
           }}
         >
-          {/* Card face image (unique per card) */}
+          {/* Card face image (unique per card) — contain to show full image */}
           <Image
             src={getCardImageSrc(card.id) || "/images/card-cover.jpeg"}
             alt={card.name}
             fill
-            className="object-cover"
-            sizes="(max-width: 768px) 80px, 90px"
+            className="object-contain"
+            sizes="(max-width: 768px) 160px, 200px"
             loading="lazy"
           />
 
