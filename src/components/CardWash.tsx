@@ -125,7 +125,7 @@ export default function CardWash({ exiting, onWash, onConfirm, mode, washSignal 
             px-8 py-2.5 font-heading text-sm tracking-[0.15em] uppercase
             border border-brilliant-gold/50 text-brilliant-gold
             hover:bg-brilliant-gold/10 hover:border-brilliant-gold
-            hover:shadow-[0_0_25px_rgba(230,198,135,0.3)]
+            hover:shadow-[0_0_25px_rgba(165,124,42,0.3)]
             transition-all duration-300
           "
           onClick={onConfirm}

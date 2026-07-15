@@ -344,7 +344,7 @@ export function useHandTracking(opts: UseHandTrackingOptions) {
     ctx.clearRect(0, 0, w, h);
     if (!lms) return;
 
-    ctx.strokeStyle = "rgba(230, 198, 135, 0.7)";
+    ctx.strokeStyle = "rgba(165, 124, 42, 0.8)";
     ctx.lineWidth = 2;
     for (const [i, j] of HAND_CONNECTIONS) {
       ctx.beginPath();
@@ -360,7 +360,7 @@ export function useHandTracking(opts: UseHandTrackingOptions) {
       ctx.arc(x, y, 4, 0, 2 * Math.PI);
       ctx.fillStyle = "#2B4C7E";
       ctx.fill();
-      ctx.strokeStyle = "#E6C687";
+      ctx.strokeStyle = "#A57C2A";
       ctx.lineWidth = 1.5;
       ctx.stroke();
     }

@@ -6,11 +6,11 @@
   /* Primary Palette */
   --color-primary-gold: #2B4C7E;
   --color-rich-gold: #2B4C7E;
-  --color-light-gold: #E6C687;
-  --color-warm-gold: #E6C687;
+  --color-light-gold: #A57C2A;
+  --color-warm-gold: #A57C2A;
   --color-deep-gold: #3D5470;
   --color-antique-gold: #3D5470;
-  --color-brilliant-gold: #E6C687;
+  --color-brilliant-gold: #A57C2A;
   --color-muted-gold: #3D5470;
 
   /* Background Palette */
@@ -61,10 +61,10 @@
 
 @layer utilities {
   .text-shadow-gold {
-    text-shadow: 0 0 40px rgba(230, 198, 135, 0.3), 0 0 80px rgba(230, 198, 135, 0.1);
+    text-shadow: 0 0 40px rgba(165, 124, 42, 0.3), 0 0 80px rgba(165, 124, 42, 0.1);
   }
   .glow-gold {
-    box-shadow: 0 0 20px rgba(230, 198, 135, 0.15), 0 0 60px rgba(230, 198, 135, 0.05);
+    box-shadow: 0 0 20px rgba(165, 124, 42, 0.15), 0 0 60px rgba(165, 124, 42, 0.05);
   }
   .perspective-2000 {
     perspective: 2000px;

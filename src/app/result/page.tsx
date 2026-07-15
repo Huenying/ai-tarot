@@ -69,24 +69,24 @@ function CardMeaningPanel({
   const meaning = isReversed ? card.reversed : card.upright;
 
   return (
-    <div className="w-full max-w-[280px] md:max-w-[320px]">
+    <div className="w-full max-w-[280px] md:max-w-[360px]">
       {/* Card name + static orientation indicator */}
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-3">
         <div>
-          <h3 className="text-[#2B4C7E] font-heading text-sm tracking-wider leading-tight">
+          <h3 className="text-[#2B4C7E] font-heading text-base md:text-lg tracking-wider leading-tight">
             {card.name}
           </h3>
           {card.element && (
-            <span className="text-[9px] text-[#BDBDCC] uppercase tracking-widest">
+            <span className="text-[11px] text-[#BDBDCC] uppercase tracking-widest">
               {card.element} · {card.planet}
             </span>
           )}
         </div>
         <span
-          className={`text-[9px] px-2 py-0.5 border ${
+          className={`text-[11px] px-3 py-1 border ${
             isReversed
-              ? "border-[#E6C687]/30 text-[#E6C687]/70"
-              : "border-[#2B4C7E]/30 text-[#2B4C7E]/70"
+              ? "border-[#A57C2A]/40 text-[#A57C2A] font-semibold"
+              : "border-[#2B4C7E]/30 text-[#2B4C7E] font-semibold"
           }`}
         >
           {isReversed ? "Reversed" : "Upright"}
@@ -94,17 +94,17 @@ function CardMeaningPanel({
       </div>
 
       {/* Main meaning */}
-      <p className="text-[#1C2D42] text-xs leading-relaxed mb-2.5 italic">
+      <p className="text-[#1C2D42] text-sm md:text-base leading-relaxed mb-3 italic">
         &ldquo;{meaning}&rdquo;
       </p>
 
       {/* Keywords tag chips */}
       {card.keywords && (
-        <div className="flex flex-wrap gap-1.5 mb-2.5">
+        <div className="flex flex-wrap gap-2 mb-3">
           {card.keywords.map((kw) => (
             <span
               key={kw}
-              className="text-[8px] px-1.5 py-0.5 rounded-sm bg-[#2B4C7E]/10 text-[#3D5470] uppercase tracking-wider"
+              className="text-[10px] px-2 py-1 rounded-sm bg-[#2B4C7E]/10 text-[#3D5470] uppercase tracking-wider"
             >
               {kw}
             </span>
@@ -113,16 +113,16 @@ function CardMeaningPanel({
       )}
 
       {/* Category mini-grid */}
-      <div className="grid grid-cols-1 gap-1.5 text-[10px]">
-        <div className="flex items-start gap-2 p-1.5 border border-[#2B4C7E]/5 bg-[#F0EFF5]/60 rounded-sm">
+      <div className="grid grid-cols-1 gap-2 text-xs md:text-sm">
+        <div className="flex items-start gap-2 p-2 border border-[#2B4C7E]/5 bg-[#F0EFF5]/60 rounded-sm">
           <span className="text-[#3D5470] shrink-0">❤ Love</span>
           <span className="text-[#1C2D42]">{meaning}</span>
         </div>
-        <div className="flex items-start gap-2 p-1.5 border border-[#2B4C7E]/5 bg-[#F0EFF5]/60 rounded-sm">
+        <div className="flex items-start gap-2 p-2 border border-[#2B4C7E]/5 bg-[#F0EFF5]/60 rounded-sm">
           <span className="text-[#3D5470] shrink-0">💼 Career</span>
           <span className="text-[#1C2D42]">{meaning}</span>
         </div>
-        <div className="flex items-start gap-2 p-1.5 border border-[#2B4C7E]/5 bg-[#F0EFF5]/60 rounded-sm">
+        <div className="flex items-start gap-2 p-2 border border-[#2B4C7E]/5 bg-[#F0EFF5]/60 rounded-sm">
           <span className="text-[#3D5470] shrink-0">❓ Yes or No</span>
           <span className="text-[#1C2D42]">{card.yesno}</span>
         </div>
@@ -196,7 +196,7 @@ export default function ResultPage() {
           <p className="text-[#3D5470] text-xs mb-4">Please select 3 cards first.</p>
           <Link
             href="/"
-            className="text-[#2B4C7E] font-heading text-sm tracking-wider underline hover:text-[#E6C687]"
+            className="text-[#2B4C7E] font-heading text-sm tracking-wider underline hover:text-[#A57C2A]"
           >
             Return to start
           </Link>
@@ -235,7 +235,7 @@ export default function ResultPage() {
               transition={{ duration: 0.6, delay: i * 0.25 }}
             >
               {/* Position label */}
-              <span className="text-[10px] text-[#3D5470] font-heading tracking-widest mb-3 uppercase">
+              <span className="text-xs md:text-sm text-[#3D5470] font-heading tracking-widest mb-3 uppercase">
                 {positionLabels[i] || `Card ${i + 1}`}
               </span>
 

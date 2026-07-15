@@ -82,8 +82,8 @@ export default function CameraOverlay({
   // Error state — show instructions, not camera
   if (error) {
     return (
-      <div className="fixed bottom-4 right-4 z-[99999] w-56 p-3 rounded-sm border border-[#E6C687]/30 bg-[#1C2D42] shadow-2xl">
-        <p className="text-[#E6C687] text-[10px] font-heading tracking-wider mb-1">
+      <div className="fixed bottom-4 right-4 z-[99999] w-56 p-3 rounded-sm border border-[#A57C2A]/30 bg-[#1C2D42] shadow-2xl">
+        <p className="text-[#A57C2A] text-[10px] font-heading tracking-wider mb-1">
           ⚠ Motion Mode
         </p>
         <p className="text-[#BDBDCC] text-[9px] leading-relaxed">{error}</p>
@@ -151,7 +151,7 @@ export default function CameraOverlay({
 
         {/* Gesture label badge */}
         <div className="absolute top-1 left-1 px-1.5 py-0.5 bg-[#1C2D42]/80 rounded-sm">
-          <span className="text-[#E6C687] text-[8px] font-heading tracking-wider whitespace-nowrap">
+          <span className="text-[#A57C2A] text-[8px] font-heading tracking-wider whitespace-nowrap">
             {gesture === "none"
               ? isTracking
                 ? "Detecting..."
@@ -164,7 +164,7 @@ export default function CameraOverlay({
         {holdProgress > 0 && (
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20">
             <div
-              className="h-full bg-[#E6C687] transition-all duration-100"
+              className="h-full bg-[#A57C2A] transition-all duration-100"
               style={{ width: `${holdProgress * 100}%` }}
             />
           </div>
@@ -183,7 +183,7 @@ export default function CameraOverlay({
               <circle
                 cx="10" cy="10" r="8"
                 fill="none"
-                stroke="#E6C687"
+                stroke="#A57C2A"
                 strokeWidth="2"
                 strokeDasharray={`${squeezeProgress * 50} 50`}
                 strokeLinecap="round"
@@ -201,7 +201,7 @@ export default function CameraOverlay({
               key={i}
               className="px-2 py-1 rounded-sm bg-[#1C2D42]/80 border border-[#2B4C7E]/20 backdrop-blur-sm"
             >
-              <span className="text-[#E6C687] text-[8px] tracking-wider">
+              <span className="text-[#A57C2A] text-[8px] tracking-wider">
                 {h.icon} {h.text}
               </span>
             </div>

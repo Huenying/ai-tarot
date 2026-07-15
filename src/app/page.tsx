@@ -126,7 +126,7 @@ export default function LandingPage() {
               border transition-all duration-300
               ${cameraLoading
                 ? "border-brilliant-gold/30 text-brilliant-gold/50 cursor-wait"
-                : "border-brilliant-gold/50 text-brilliant-gold hover:bg-brilliant-gold/10 hover:border-brilliant-gold hover:shadow-[0_0_25px_rgba(230,198,135,0.2)]"
+                : "border-brilliant-gold/50 text-brilliant-gold hover:bg-brilliant-gold/10 hover:border-brilliant-gold hover:shadow-[0_0_25px_rgba(165,124,42,0.2)]"
               }
             `}
             onClick={handleMotionMode}
@@ -149,15 +149,15 @@ export default function LandingPage() {
         {/* Camera permission error */}
         {cameraError && (
           <motion.div
-            className="mt-6 px-4 py-3 border border-[#E6C687]/40 bg-[#E6C687]/5 max-w-xl mx-auto"
+            className="mt-6 px-4 py-3 border border-[#A57C2A]/40 bg-[#A57C2A]/5 max-w-xl mx-auto"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <p className="text-[#E6C687] text-[11px] leading-relaxed">
+            <p className="text-[#A57C2A] text-[11px] leading-relaxed">
               ⚠ {cameraError}
             </p>
             <button
-              className="mt-2 text-[10px] text-[#2B4C7E] underline hover:text-[#E6C687] tracking-wider"
+              className="mt-2 text-[10px] text-[#2B4C7E] underline hover:text-[#A57C2A] tracking-wider"
               onClick={() => { setCameraError(null); handleMotionMode(); }}
             >
               Try again

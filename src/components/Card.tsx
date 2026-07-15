@@ -67,7 +67,7 @@ export default function Card({
           className="absolute inset-0 rounded-lg backface-hidden overflow-hidden"
           style={{
             background: "linear-gradient(135deg, #E0DFE8 0%, #CECDDA 50%, #E0DFE8 100%)",
-            border: "1px solid rgba(230, 198, 135, 0.4)",
+            border: "1px solid rgba(165, 124, 42, 0.4)",
           }}
         >
           <Image
@@ -89,7 +89,7 @@ export default function Card({
           style={{
             transform: "rotateY(180deg)",
             background: "linear-gradient(160deg, #E8E7EE 0%, #D5D4DD 50%, #F0EFF5 100%)",
-            border: "1px solid rgba(230, 198, 135, 0.5)",
+            border: "1px solid rgba(165, 124, 42, 0.5)",
           }}
         >
           {/* Ornamental border */}
@@ -118,6 +118,7 @@ export default function Card({
               style={{
                 color: card.type === "major" ? "#A57C2A" : "#1C2D42",
                 textShadow: "none",
+                fontWeight: card.type === "major" ? 700 : 500,
               }}
             >
               {card.name}
@@ -153,7 +154,7 @@ export default function Card({
         <div
           className="absolute inset-[-4px] rounded-xl z-[-1]"
           style={{
-            boxShadow: "0 0 25px 5px rgba(230, 198, 135, 0.5), 0 0 60px 15px rgba(230, 198, 135, 0.15)",
+            boxShadow: "0 0 25px 5px rgba(165, 124, 42, 0.5), 0 0 60px 15px rgba(165, 124, 42, 0.15)",
           }}
         />
       )}
