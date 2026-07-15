@@ -305,7 +305,7 @@ export default function ChatPage() {
     <main className="min-h-screen flex" style={{ backgroundColor: "#F0EFF5" }}>
       {/* ── Left Sidebar ── */}
       <motion.aside
-        className="hidden md:flex flex-col w-[220px] shrink-0 border-r border-[#2B4C7E]/10 bg-[#E8E7EE]/50 p-4"
+        className="hidden md:flex flex-col w-[260px] shrink-0 border-r border-[#2B4C7E]/10 bg-[#E8E7EE]/50 p-5"
         initial={{ x: -60, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
@@ -321,15 +321,15 @@ export default function ChatPage() {
         {selectedCards.map(({ card, isReversed, position }, i) => (
           <motion.div
             key={card.id}
-            className="flex flex-col items-center mb-5"
+            className="flex flex-col items-center mb-12 scale-[1.2] origin-top"
             initial={{ x: -40, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.1 + i * 0.1 }}
           >
-            <span className="text-[9px] text-[#3D5470] font-heading tracking-widest mb-2 uppercase">
+            <span className="text-[9px] text-[#3D5470] font-heading tracking-widest mb-1 uppercase">
               {position}
             </span>
-            <div className="scale-[0.6] -my-5">
+            <div className="my-1">
               <Card
                 card={card as any}
                 faceUp={true}
@@ -338,28 +338,21 @@ export default function ChatPage() {
                 rotation={isReversed ? 180 : 0}
               />
             </div>
-            <span className="text-[10px] text-[#1C2D42] font-heading tracking-wider mt-0.5 text-center leading-tight">
-              {card.name}
-            </span>
-            <span className={`text-[8px] px-1.5 py-0.5 border mt-0.5 ${
-              isReversed
-                ? "border-[#A57C2A]/40 text-[#A57C2A] font-semibold"
-                : "border-[#2B4C7E]/30 text-[#2B4C7E] font-semibold"
-            }`}>
-              {isReversed ? "Reversed" : "Upright"}
-            </span>
+            <div className="my-0 flex items-center justify-center gap-2">
+              <span className="text-[10px] text-[#1C2D42] font-heading tracking-wider text-center leading-tight">
+                {card.name}
+              </span>
+              <span className={`text-[8px] px-1.5 py-0.5 border shrink-0 ${
+                isReversed
+                  ? "border-[#A57C2A]/40 text-[#A57C2A] font-semibold"
+                  : "border-[#2B4C7E]/30 text-[#2B4C7E] font-semibold"
+              }`}>
+                {isReversed ? "Reversed" : "Upright"}
+              </span>
+            </div>
           </motion.div>
         ))}
 
-        {/* New Reading link */}
-        <div className="mt-auto pt-4 text-center">
-          <Link
-            href="/"
-            className="text-[10px] text-[#2B4C7E] font-heading tracking-wider underline hover:text-[#A57C2A] transition-colors"
-          >
-            - New Reading
-          </Link>
-        </div>
       </motion.aside>
 
       {/* ── Right Chat Area ── */}
@@ -370,13 +363,21 @@ export default function ChatPage() {
         transition={{ duration: 0.5, delay: 0.2 }}
       >
         {/* Chat Header */}
-        <div className="text-center py-5 px-4 border-b border-[#2B4C7E]/10">
-          <h1 className="text-xl md:text-2xl font-heading text-[#2B4C7E] tracking-[0.08em]">
-            💬 Ask About Your Reading
-          </h1>
-          <p className="text-[#3D5470] text-xs mt-1">
-            Ask me anything about the cards and their meanings
-          </p>
+        <div className="flex items-center justify-between py-5 px-4 border-b border-[#2B4C7E]/10">
+          <div className="text-left">
+            <h1 className="text-xl md:text-2xl font-heading text-[#2B4C7E] tracking-[0.08em]">
+              💬 Ask About Your Reading
+            </h1>
+            <p className="text-[#3D5470] text-xs mt-1">
+              Ask me anything about the cards and their meanings
+            </p>
+          </div>
+          <Link
+            href="/"
+            className="px-6 py-2 border border-[#2B4C7E]/40 text-[#2B4C7E] font-heading text-xs tracking-[0.15em] hover:bg-[#2B4C7E]/10 hover:shadow-[0_0_30px_rgba(43,76,126,0.15)] transition-all duration-300 shrink-0"
+          >
+            New Reading
+          </Link>
         </div>
 
         {/* Messages */}
@@ -391,13 +392,15 @@ export default function ChatPage() {
                 transition={{ duration: 0.2 }}
               >
                 <div
-                  className={`max-w-[85%] md:max-w-[70%] rounded-sm p-3 text-sm leading-relaxed whitespace-pre-line ${
+                  className={`max-w-[85%] md:max-w-[70%] rounded-sm p-3 text-base md:text-lg leading-relaxed whitespace-pre-line ${
                     msg.role === "user"
                       ? "bg-[#2B4C7E] text-white"
                       : "bg-[#E0DFE8] text-[#1C2D42]"
                   }`}
                 >
-                  {msg.text}
+                  {msg.text.split(/\*\*(.*?)\*\*/g).map((part, i) =>
+                    i % 2 === 1 ? <strong key={i} className="font-bold">{part}</strong> : part
+                  )}
                 </div>
               </motion.div>
             ))}
@@ -452,17 +455,17 @@ export default function ChatPage() {
             {selectedCards.map(({ card, isReversed, position }, i) => (
               <div key={card.id} className="flex flex-col items-center">
                 <span className="text-[7px] text-[#3D5470] font-heading tracking-widest mb-1">{position.split(" / ")[0]}</span>
-                <div className="scale-[0.45] -my-6">
+                <div className="scale-[0.55] -my-5">
                   <Card card={card as any} faceUp={true} showName={false} hideOverlay={true} rotation={isReversed ? 180 : 0} />
                 </div>
                 <span className="text-[8px] text-[#1C2D42] font-heading mt-0.5">
-                  {isReversed ? "↕ Rev" : "↑ Up"}
+                  {isReversed ? "Rev" : "Up"}
                 </span>
               </div>
             ))}
           </div>
           <div className="text-center mt-2">
-            <Link href="/" className="text-[9px] text-[#2B4C7E] font-heading tracking-wider underline">- New Reading</Link>
+            <Link href="/" className="px-6 py-1.5 border border-[#2B4C7E]/40 text-[#2B4C7E] font-heading text-[10px] tracking-[0.15em] hover:bg-[#2B4C7E]/10 transition-all duration-300">New Reading</Link>
           </div>
         </div>
       </motion.div>
