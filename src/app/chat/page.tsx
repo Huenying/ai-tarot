@@ -193,7 +193,7 @@ export default function ChatPage() {
         <div className="text-center">
           <p className="text-[#1C2D42] text-lg mb-2">No cards selected</p>
           <p className="text-[#3D5470] text-xs mb-4">Please select 3 cards first.</p>
-          <Link href="/setup" className="text-[#2B4C7E] font-heading text-sm tracking-wider underline hover:text-[#A57C2A]">
+          <Link href="/" className="text-[#2B4C7E] font-heading text-sm tracking-wider underline hover:text-[#A57C2A]">
             Return to start
           </Link>
         </div>
@@ -272,7 +272,7 @@ export default function ChatPage() {
               Ask me anything about the cards and their meanings
             </p>
           </div>
-          <Link href="/setup" className="w-9 h-9 flex items-center justify-center border border-[#2B4C7E]/30 text-[#2B4C7E] hover:bg-[#2B4C7E]/10 hover:border-[#2B4C7E] transition-all duration-200 rounded-sm shrink-0">
+          <Link href="/" className="w-9 h-9 flex items-center justify-center border border-[#2B4C7E]/30 text-[#2B4C7E] hover:bg-[#2B4C7E]/10 hover:border-[#2B4C7E] transition-all duration-200 rounded-sm shrink-0">
             <span className="text-sm">🏠</span>
           </Link>
         </div>
@@ -360,7 +360,7 @@ export default function ChatPage() {
             ))}
           </div>
           <div className="text-center mt-2">
-            <Link href="/setup" className="inline-flex items-center gap-1 px-3 py-1 border border-[#2B4C7E]/30 text-[#2B4C7E] hover:bg-[#2B4C7E]/10 transition-all duration-200 text-xs">🏠 Home</Link>
+            <Link href="/" className="inline-flex items-center gap-1 px-3 py-1 border border-[#2B4C7E]/30 text-[#2B4C7E] hover:bg-[#2B4C7E]/10 transition-all duration-200 text-xs">🏠 Home</Link>
           </div>
         </div>
       </motion.div>

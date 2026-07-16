@@ -256,7 +256,7 @@ export default function ResultPage() {
           </p>
           <p className="text-[#3D5470] text-xs mb-4">Please select 3 cards first.</p>
           <Link
-            href="/setup"
+            href="/"
             className="text-[#2B4C7E] font-heading text-sm tracking-wider underline hover:text-[#A57C2A]"
           >
             Return to start
