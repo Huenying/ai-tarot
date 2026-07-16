@@ -310,7 +310,7 @@ export default function ChatPage() {
         <div className="text-center">
           <p className="text-[#1C2D42] text-lg mb-2">No cards selected</p>
           <p className="text-[#3D5470] text-xs mb-4">Please select 3 cards first.</p>
-          <Link href="/" className="text-[#2B4C7E] font-heading text-sm tracking-wider underline hover:text-[#A57C2A]">
+          <Link href="/setup" className="text-[#2B4C7E] font-heading text-sm tracking-wider underline hover:text-[#A57C2A]">
             Return to start
           </Link>
         </div>
@@ -319,10 +319,10 @@ export default function ChatPage() {
   }
 
   return (
-    <main className="min-h-screen flex" style={{ backgroundColor: "#F0EFF5" }}>
+    <main className="h-screen flex overflow-hidden" style={{ backgroundColor: "#F0EFF5" }}>
       {/* ── Left Sidebar ── */}
       <motion.aside
-        className="hidden md:flex flex-col w-[260px] shrink-0 border-r border-[#2B4C7E]/10 bg-[#E8E7EE]/50 p-5 overflow-y-auto"
+        className="hidden md:flex flex-col w-[260px] shrink-0 border-r border-[#2B4C7E]/10 bg-[#E8E7EE]/50 p-5 overflow-y-auto h-full"
         initial={{ x: -60, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
@@ -389,7 +389,7 @@ export default function ChatPage() {
               Ask me anything about the cards and their meanings
             </p>
           </div>
-          <Link href="/" className="w-9 h-9 flex items-center justify-center border border-[#2B4C7E]/30 text-[#2B4C7E] hover:bg-[#2B4C7E]/10 hover:border-[#2B4C7E] transition-all duration-200 rounded-sm shrink-0">
+          <Link href="/setup" className="w-9 h-9 flex items-center justify-center border border-[#2B4C7E]/30 text-[#2B4C7E] hover:bg-[#2B4C7E]/10 hover:border-[#2B4C7E] transition-all duration-200 rounded-sm shrink-0">
             <span className="text-sm">🏠</span>
           </Link>
         </div>
@@ -479,7 +479,7 @@ export default function ChatPage() {
             ))}
           </div>
           <div className="text-center mt-2">
-            <Link href="/" className="inline-flex items-center gap-1 px-3 py-1 border border-[#2B4C7E]/30 text-[#2B4C7E] hover:bg-[#2B4C7E]/10 transition-all duration-200 text-xs">🏠 Home</Link>
+            <Link href="/setup" className="inline-flex items-center gap-1 px-3 py-1 border border-[#2B4C7E]/30 text-[#2B4C7E] hover:bg-[#2B4C7E]/10 transition-all duration-200 text-xs">🏠 Home</Link>
           </div>
         </div>
       </motion.div>

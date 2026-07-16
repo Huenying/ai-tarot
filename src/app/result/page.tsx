@@ -256,7 +256,7 @@ export default function ResultPage() {
           </p>
           <p className="text-[#3D5470] text-xs mb-4">Please select 3 cards first.</p>
           <Link
-            href="/"
+            href="/setup"
             className="text-[#2B4C7E] font-heading text-sm tracking-wider underline hover:text-[#A57C2A]"
           >
             Return to start
@@ -347,13 +347,13 @@ export default function ResultPage() {
       {/* ── Cards ── */}
       <div className="max-w-6xl mx-auto">
         {selectedCards.length > 5 ? (
-          /* Split into two rows: first 5, then the rest */
+          /* Split into two equal halves */
           <>
             <div className="flex flex-col md:flex-row justify-center items-start gap-8 md:gap-10 mb-8">
-              {selectedCards.slice(0, 5).map(({ card, isReversed }, i) => renderCard(card, isReversed, i))}
+              {selectedCards.slice(0, Math.ceil(selectedCards.length / 2)).map(({ card, isReversed }, i) => renderCard(card, isReversed, i))}
             </div>
             <div className="flex flex-col md:flex-row justify-center items-start gap-8 md:gap-10">
-              {selectedCards.slice(5).map(({ card, isReversed }, i) => renderCard(card, isReversed, i + 5))}
+              {selectedCards.slice(Math.ceil(selectedCards.length / 2)).map(({ card, isReversed }, i) => renderCard(card, isReversed, i + Math.ceil(selectedCards.length / 2)))}
             </div>
           </>
         ) : (
