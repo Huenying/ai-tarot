@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Card from "@/components/Card";
@@ -267,7 +267,7 @@ export default function ResultPage() {
   }
 
   // ── Render a single card (used in rows above) ──
-  const renderCard = useCallback((card: EnrichedCard, isReversed: boolean, i: number) => {
+  function renderCard(card: EnrichedCard, isReversed: boolean, i: number) {
     const isFlipped = flippedCards.has(i);
     return (
       <motion.div
@@ -313,7 +313,7 @@ export default function ResultPage() {
         </AnimatePresence>
       </motion.div>
     );
-  }, [flippedCards, handleFlip, positionLabels]);
+  }
 
   return (
     <main className="relative min-h-screen py-8 px-4 md:px-8" style={{ backgroundColor: "#F0EFF5" }}>
