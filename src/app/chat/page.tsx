@@ -372,11 +372,8 @@ export default function ChatPage() {
               Ask me anything about the cards and their meanings
             </p>
           </div>
-          <Link
-            href="/"
-            className="px-6 py-2 border border-[#2B4C7E]/40 text-[#2B4C7E] font-heading text-xs tracking-[0.15em] hover:bg-[#2B4C7E]/10 hover:shadow-[0_0_30px_rgba(43,76,126,0.15)] transition-all duration-300 shrink-0"
-          >
-            New Reading
+          <Link href="/" className="w-9 h-9 flex items-center justify-center border border-[#2B4C7E]/30 text-[#2B4C7E] hover:bg-[#2B4C7E]/10 hover:border-[#2B4C7E] transition-all duration-200 rounded-sm shrink-0">
+            <span className="text-sm">🏠</span>
           </Link>
         </div>
 
@@ -465,7 +462,7 @@ export default function ChatPage() {
             ))}
           </div>
           <div className="text-center mt-2">
-            <Link href="/" className="px-6 py-1.5 border border-[#2B4C7E]/40 text-[#2B4C7E] font-heading text-[10px] tracking-[0.15em] hover:bg-[#2B4C7E]/10 transition-all duration-300">New Reading</Link>
+            <Link href="/" className="inline-flex items-center gap-1 px-3 py-1 border border-[#2B4C7E]/30 text-[#2B4C7E] hover:bg-[#2B4C7E]/10 transition-all duration-200 text-xs">🏠 Home</Link>
           </div>
         </div>
       </motion.div>

@@ -130,7 +130,7 @@ function CardCarouselInner({
 
   const currentSelected = isSelectedPos(currentPos);
   const canNav = availablePositions.length > 0;
-  const showOverlay = selectedIndices.length >= 3;
+  const showOverlay = selectedIndices.length >= cardCount;
 
   // Directly set carouselApi ref for hand-mode control
   useEffect(() => {
@@ -269,7 +269,7 @@ function CardCarouselInner({
                   Cards Selected
                 </p>
                 <p className="text-brilliant-gold/70 text-sm mb-6">
-                  Your 3 cards have been chosen
+                  Your {cardCount} cards have been chosen
                 </p>
                 <div className="flex justify-center gap-4 mb-6">
                   {selectedIndices.map((idx) => (

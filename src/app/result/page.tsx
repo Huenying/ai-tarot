@@ -268,6 +268,11 @@ export default function ResultPage() {
 
   return (
     <main className="relative min-h-screen py-8 px-4 md:px-8" style={{ backgroundColor: "#F0EFF5" }}>
+      {/* ── Home icon top right ── */}
+      <Link href="/" className="fixed top-4 right-4 z-50 w-9 h-9 flex items-center justify-center border border-[#2B4C7E]/30 text-[#2B4C7E] hover:bg-[#2B4C7E]/10 hover:border-[#2B4C7E] transition-all duration-200 rounded-sm">
+        <span className="text-sm">🏠</span>
+      </Link>
+
       {/* ── Header ── */}
       <div className="text-center mb-8">
         <div className="w-12 h-12 mx-auto rounded-full border border-[#2B4C7E]/30 flex items-center justify-center mb-4">
@@ -357,13 +362,6 @@ export default function ResultPage() {
           className="px-8 py-2.5 border border-brilliant-gold/50 text-brilliant-gold font-heading text-sm tracking-[0.15em] hover:bg-brilliant-gold/10 hover:shadow-[0_0_25px_rgba(165,124,42,0.2)] transition-all duration-300"
         >
           🔮 Unlock AI Insight
-        </Link>
-
-        <Link
-          href="/"
-          className="px-8 py-2.5 border border-[#2B4C7E]/40 text-[#2B4C7E] font-heading text-sm tracking-[0.15em] hover:bg-[#2B4C7E]/10 hover:shadow-[0_0_30px_rgba(43,76,126,0.15)] transition-all duration-300"
-        >
-          New Reading
         </Link>
       </div>
 
