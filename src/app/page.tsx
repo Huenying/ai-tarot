@@ -14,6 +14,9 @@ export default function SplashPage() {
         style={{ backgroundImage: "url('/images/home-bg.jpeg')" }}
       />
 
+      {/* Subtle dark overlay for readability */}
+      <div className="absolute inset-0 bg-black/15" />
+
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 text-center">
         <motion.div
