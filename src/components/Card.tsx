@@ -93,9 +93,6 @@ export default function Card({
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#1C2D42]/60 to-transparent" />
-          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[6px] text-primary-gold/50 font-heading whitespace-nowrap">
-            TAROT
-          </div>
         </div>
 
         {/* Card Front */}
