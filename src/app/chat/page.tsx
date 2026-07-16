@@ -6,6 +6,7 @@ import Link from "next/link";
 import Card from "@/components/Card";
 import LOCAL_CARDS from "@/data/cards";
 import { majorArcana } from "tarot-card-meanings";
+import { SPREADS } from "@/lib/spreads";
 
 // ─────────────────────────────────────────────────────────────────
 //  Types
@@ -71,7 +72,6 @@ function buildEnrichedCards(): Map<string, EnrichedCard> {
 }
 
 const ENRICHED = buildEnrichedCards();
-const POSITION_LABELS = ["Past / Foundation", "Present / Challenge", "Future / Outcome"];
 
 // ─────────────────────────────────────────────────────────────────
 //  Q&A Response Engine
@@ -158,24 +158,20 @@ function generateResponse(userInput: string, cards: CardWithPosition[]): string 
 }
 
 function helpText(): string {
-  return `✨ I can help you explore your cards! Try asking:
+  return `Try asking:
 
-• **"Tell me about The Fool"** — meaning of a specific card
-• **"Love"** — love and relationship insights
-• **"Career"** — career and work guidance
-• **"Past"** or **"Present"** or **"Future"** — a specific position
-• **"Overall"** — full reading summary
-• **"Yes or No"** — yes/no guidance
+• Meaning of a specific card
+• Meaning of a specific position
+• Full reading summary
+`;
 
-What would you like to know?`;
-}
-
-function getWelcomeMessage(): string {
-  return `🔮 Welcome to AI Tarot Insight!
-
-I can answer your questions about the three cards you've selected. Ask me about love, career, a specific card's meaning, or request an overall reading summary.
-
-${helpText()}`;
+function getWelcomeMessage(question: string): string {
+  let msg = `✨ I can help you explore your cards!`;
+  if (question) {
+    msg += `\n\nYour question: "${question}"`;
+  }
+  msg += `\n\n${helpText()}`;
+  return msg;
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -207,6 +203,27 @@ export default function ChatPage() {
     return ids.map((id, i) => ({ id, isReversed: revs[i] ?? false }));
   }, [isClient]);
 
+  // Read spread and question from URL
+  const spreadId = useMemo(() => {
+    if (!isClient) return "";
+    try { return new URLSearchParams(window.location.search).get("spread") || ""; }
+    catch { return ""; }
+  }, [isClient]);
+
+  const question = useMemo(() => {
+    if (!isClient) return "";
+    try { return new URLSearchParams(window.location.search).get("q") || ""; }
+    catch { return ""; }
+  }, [isClient]);
+
+  // Dynamic position labels from spread config
+  const positionLabels: string[] = useMemo(() => {
+    if (spreadId && SPREADS[spreadId]) {
+      return SPREADS[spreadId].positions.map((p) => p.label);
+    }
+    return ["Past / Foundation", "Present / Challenge", "Future / Outcome"];
+  }, [spreadId]);
+
   // Resolve enriched cards with positions
   const selectedCards: CardWithPosition[] = useMemo(() => {
     return cardData
@@ -215,10 +232,10 @@ export default function ChatPage() {
         if (!local) return null;
         const enriched = ENRICHED.get(local.name);
         if (!enriched) return null;
-        return { card: enriched, isReversed: d.isReversed, position: POSITION_LABELS[i] || `Card ${i + 1}` };
+        return { card: enriched, isReversed: d.isReversed, position: positionLabels[i] || `Card ${i + 1}` };
       })
       .filter(Boolean) as CardWithPosition[];
-  }, [cardData]);
+  }, [cardData, positionLabels]);
 
   // ── Chat state ──
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -230,11 +247,11 @@ export default function ChatPage() {
 
   // Show welcome message once cards are loaded
   useEffect(() => {
-    if (selectedCards.length === 3 && !welcomeShown.current) {
+    if (selectedCards.length > 0 && !welcomeShown.current) {
       welcomeShown.current = true;
-      setMessages([{ id: "welcome", role: "assistant", text: getWelcomeMessage() }]);
+      setMessages([{ id: "welcome", role: "assistant", text: getWelcomeMessage(question) }]);
     }
-  }, [selectedCards]);
+  }, [selectedCards, question]);
 
   // Auto-scroll to bottom
   const scrollToBottom = useCallback(() => {
