@@ -6,6 +6,7 @@ import Link from "next/link";
 import Card from "@/components/Card";
 import LOCAL_CARDS from "@/data/cards";
 import { majorArcana } from "tarot-card-meanings";
+import { SPREADS } from "@/lib/spreads";
 
 // ─────────────────────────────────────────────────────────────────
 //  Merged card lookup
@@ -179,6 +180,26 @@ export default function ResultPage() {
     return ids.map((id, i) => ({ id, isReversed: revs[i] ?? false }));
   }, [isClient]);
 
+  // Spread info and question from URL
+  const spreadId = useMemo(() => {
+    if (!isClient) return "";
+    try { return new URLSearchParams(window.location.search).get("spread") || ""; }
+    catch { return ""; }
+  }, [isClient]);
+
+  const question = useMemo(() => {
+    if (!isClient) return "";
+    try { return new URLSearchParams(window.location.search).get("q") || ""; }
+    catch { return ""; }
+  }, [isClient]);
+
+  const positionLabels: string[] = useMemo(() => {
+    if (spreadId && SPREADS[spreadId]) {
+      return SPREADS[spreadId].positions.map((p) => p.label);
+    }
+    return ["Past / Foundation", "Present / Challenge", "Future / Outcome"];
+  }, [spreadId]);
+
   // Resolve enriched cards
   const selectedCards: { card: EnrichedCard; isReversed: boolean }[] = useMemo(() => {
     return cardData
@@ -245,8 +266,6 @@ export default function ResultPage() {
     );
   }
 
-  const positionLabels = ["Past / Foundation", "Present / Challenge", "Future / Outcome"];
-
   return (
     <main className="relative min-h-screen py-8 px-4 md:px-8" style={{ backgroundColor: "#F0EFF5" }}>
       {/* ── Header ── */}
@@ -257,7 +276,15 @@ export default function ResultPage() {
         <h1 className="text-3xl md:text-4xl font-heading text-[#2B4C7E] tracking-[0.12em] mb-2">
           Your Reading
         </h1>
-        <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#2B4C7E]/50 to-transparent mx-auto mb-4" />
+        {question && (
+          <p className="text-[#1C2D42] text-sm italic mb-1">&ldquo;{question}&rdquo;</p>
+        )}
+        {spreadId && SPREADS[spreadId] && (
+          <span className="text-[10px] text-[#3D5470] font-heading tracking-widest uppercase">
+            {SPREADS[spreadId].nameZh} · {SPREADS[spreadId].name} · {SPREADS[spreadId].cards} cards
+          </span>
+        )}
+        <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#2B4C7E]/50 to-transparent mx-auto my-4" />
         <p className="text-[#3D5470] text-sm max-w-md mx-auto">
           Click each card to reveal its message
         </p>
@@ -326,7 +353,7 @@ export default function ResultPage() {
       <div className="flex flex-col items-center mt-12 gap-4">
         {/* Unlock AI Insight — passes card data to chat page */}
         <Link
-          href={`/chat?${cardData.map((d) => `cards=${d.id}&rev=${d.isReversed ? "1" : "0"}`).join("&")}`}
+          href={`/chat?${cardData.map((d) => `cards=${d.id}&rev=${d.isReversed ? "1" : "0"}`).join("&")}${spreadId ? `&spread=${spreadId}` : ""}${question ? `&q=${encodeURIComponent(question)}` : ""}`}
           className="px-8 py-2.5 border border-brilliant-gold/50 text-brilliant-gold font-heading text-sm tracking-[0.15em] hover:bg-brilliant-gold/10 hover:shadow-[0_0_25px_rgba(165,124,42,0.2)] transition-all duration-300"
         >
           🔮 Unlock AI Insight

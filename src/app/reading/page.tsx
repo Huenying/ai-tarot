@@ -7,9 +7,24 @@ import CardWash from "@/components/CardWash";
 import CardCarousel from "@/components/CardCarousel";
 import CameraOverlay from "@/components/CameraOverlay";
 import { useHandTracking } from "@/hooks/useHandTracking";
+import { SPREADS } from "@/lib/spreads";
+import type { SpreadConfig } from "@/lib/spreads";
 
 type ReadingPhase = "washing" | "carousel" | "complete";
 type InteractionMode = "mouse" | "hand";
+
+/** Number of cards to select based on spread ID */
+const SPREAD_CARD_COUNT: Record<string, number> = {
+  "past-present-future": 3,
+  "career-prospect": 6,
+  "venus-love": 8,
+  "lovers-cross": 5,
+  "tree-of-life": 10,
+  "four-elements": 4,
+  "yes-no": 3,
+  "a-or-b": 5,
+};
+const DEFAULT_CARD_COUNT = 3;
 
 /** Fisher-Yates shuffle (in-place, returns the array) */
 function shuffle(arr: number[]) {
@@ -40,6 +55,9 @@ export default function ReadingPage() {
 
   // Interaction mode from URL
   const [mode, setMode] = useState<InteractionMode | null>(null);
+  const [category, setCategory] = useState<string>("");
+  const [spreadId, setSpreadId] = useState<string>("");
+  const [question, setQuestion] = useState<string>("");
 
   // Read mode from URL on mount
   useEffect(() => {
@@ -48,6 +66,9 @@ export default function ReadingPage() {
       const m = params.get("mode");
       if (m === "hand") setMode("hand");
       else setMode("mouse");
+      setCategory(params.get("category") || "");
+      setSpreadId(params.get("spread") || "");
+      setQuestion(params.get("q") || "");
     } catch {
       setMode("mouse");
     }
@@ -97,18 +118,20 @@ export default function ReadingPage() {
     }, 1200);
   };
 
+  const cardCount = SPREAD_CARD_COUNT[spreadId] || DEFAULT_CARD_COUNT;
+
   const handleSelect = (cardIndex: number) => {
-    if (selectedIndices.length < 3 && !selectedIndices.includes(cardIndex)) {
+    if (selectedIndices.length < cardCount && !selectedIndices.includes(cardIndex)) {
       setSelectedIndices((prev) => [...prev, cardIndex]);
     }
   };
 
-  // Navigate to results when 3 selected
+  // Navigate to results when enough cards selected
   useEffect(() => {
-    if (selectedIndices.length >= 3 && phase === "carousel") {
+    if (selectedIndices.length >= cardCount && phase === "carousel") {
       setPhase("complete");
     }
-  }, [selectedIndices.length, phase, setPhase]);
+  }, [selectedIndices.length, cardCount, phase, setPhase]);
 
   // Separate effect: navigate after a delay — no cleanup conflict with phase changes
   useEffect(() => {
@@ -119,6 +142,9 @@ export default function ReadingPage() {
           params.append("cards", String(idx));
           params.append("rev", reversedMap[idx] ? "1" : "0");
         });
+        if (spreadId) params.set("spread", spreadId);
+        if (category) params.set("category", category);
+        if (question) params.set("q", question);
         router.push(`/result?${params.toString()}`);
       }, 2500);
       return () => clearTimeout(timer);
@@ -157,6 +183,7 @@ export default function ReadingPage() {
           mode={mode}
           carouselApi={carouselApi}
           holdProgress={handTracking.holdProgress}
+          cardCount={cardCount}
         />
       )}
 

@@ -23,6 +23,8 @@ interface CardCarouselProps {
   } | null>;
   /** Hold progress 0-1 for palm-hold select ring animation */
   holdProgress?: number;
+  /** Number of cards to select (depends on spread, default 3) */
+  cardCount?: number;
 }
 
 // Dynamically import Three.js scene (browser-only)
@@ -46,6 +48,7 @@ function CardCarouselInner({
   mode = "mouse",
   carouselApi,
   holdProgress = 0,
+  cardCount = 3,
 }: CardCarouselProps) {
   const [currentPos, setCurrentPos] = useState(0); // position in the cylinder
   const [mounted, setMounted] = useState(false);
@@ -165,7 +168,7 @@ function CardCarouselInner({
           </p>
         )}
         <div className="flex items-center justify-center gap-2 mt-2">
-          {[0, 1, 2].map((i) => (
+          {Array.from({ length: cardCount }, (_, i) => i).map((i) => (
             <div
               key={i}
               className={`w-3 h-3 rounded-full border transition-all duration-300 ${
@@ -228,7 +231,7 @@ function CardCarouselInner({
         >
           {currentSelected
             ? "✓ Selected"
-            : `Select (${3 - selectedIndices.length} left)`}
+            : `Select (${cardCount - selectedIndices.length} left)`}
         </motion.button>
 
         <motion.button
