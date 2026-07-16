@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import type { CardDefinition } from "@/data/cards";
 import { getCardImageSrc } from "@/lib/card-images";
+import { withBasePath } from "@/lib/config";
 
 interface CardProps {
   card: CardDefinition;
@@ -85,7 +86,7 @@ export default function Card({
           }}
         >
           <Image
-            src="/images/card-cover.jpeg"
+            src={withBasePath("/images/card-cover.jpeg")}
             alt="Card Back"
             fill
             className="object-cover"
@@ -108,7 +109,7 @@ export default function Card({
         >
           {/* Card face image (unique per card) — contain to show full image */}
           <Image
-            src={getCardImageSrc(card.id) || "/images/card-cover.jpeg"}
+            src={getCardImageSrc(card.id) || withBasePath("/images/card-cover.jpeg")}
             alt={card.name}
             fill
             className="object-contain"

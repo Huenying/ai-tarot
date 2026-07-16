@@ -7,7 +7,9 @@
  * Returns the path suitable for use with Next.js <Image> or Three.js texture.
  * Returns null if no image exists for the card.
  */
+import { withBasePath } from "@/lib/config";
+
 export function getCardImageSrc(cardId: number): string | null {
   if (cardId < 0 || cardId > 77) return null;
-  return `/images/cards/${String(cardId).padStart(2, "0")}.jpg`;
+  return withBasePath(`/images/cards/${String(cardId).padStart(2, "0")}.jpg`);
 }
