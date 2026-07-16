@@ -161,9 +161,9 @@ function helpText(): string {
   return `Try asking:
 
 • Meaning of a specific card
-• Meaning of a specific position
-• Full reading summary
-`;
+• A specific position
+• "Overall" — full reading summary`;
+}
 
 function getWelcomeMessage(question: string): string {
   let msg = `✨ I can help you explore your cards!`;
