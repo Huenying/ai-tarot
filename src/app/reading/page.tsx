@@ -55,7 +55,6 @@ export default function ReadingPage() {
 
   // Interaction mode from URL
   const [mode, setMode] = useState<InteractionMode | null>(null);
-  const [category, setCategory] = useState<string>("");
   const [spreadId, setSpreadId] = useState<string>("");
   const [question, setQuestion] = useState<string>("");
 
@@ -66,7 +65,6 @@ export default function ReadingPage() {
       const m = params.get("mode");
       if (m === "hand") setMode("hand");
       else setMode("mouse");
-      setCategory(params.get("category") || "");
       setSpreadId(params.get("spread") || "");
       setQuestion(params.get("q") || "");
     } catch {
@@ -143,7 +141,6 @@ export default function ReadingPage() {
           params.append("rev", reversedMap[idx] ? "1" : "0");
         });
         if (spreadId) params.set("spread", spreadId);
-        if (category) params.set("category", category);
         if (question) params.set("q", question);
         router.push(`/result?${params.toString()}`);
       }, 2500);
