@@ -41,7 +41,7 @@ interface CardWithPosition {
 }
 
 // ─────────────────────────────────────────────────────────────────
-//  Enriched card data (same as result page)
+//  Enriched card data
 // ─────────────────────────────────────────────────────────────────
 
 function buildEnrichedCards(): Map<string, EnrichedCard> {
@@ -72,107 +72,6 @@ function buildEnrichedCards(): Map<string, EnrichedCard> {
 }
 
 const ENRICHED = buildEnrichedCards();
-
-// ─────────────────────────────────────────────────────────────────
-//  Q&A Response Engine
-// ─────────────────────────────────────────────────────────────────
-
-function formatCardMeaning(card: EnrichedCard, isReversed: boolean): string {
-  const label = isReversed ? "Reversed" : "Upright";
-  const meaning = isReversed ? card.reversed : card.upright;
-  const yesno = card.yesno;
-  const love = isReversed ? card.reversed : card.love;
-  const career = isReversed ? card.reversed : card.career;
-
-  let text = `**${card.name} (${label})**\n${meaning}\n\n❤ Love / 💼 Career: ${love}`;
-  text += `\n❓ Yes/No: ${yesno}`;
-  if (card.keywords?.length) text += `\n\nKeywords: ${card.keywords.join(", ")}`;
-  return text;
-}
-
-function generateResponse(userInput: string, cards: CardWithPosition[]): string {
-  const input = userInput.toLowerCase().trim();
-  if (!input) return helpText();
-
-  // Check for card name mentions
-  for (const { card, isReversed } of cards) {
-    const searchName = card.name.toLowerCase();
-    if (input.includes(searchName)) {
-      return formatCardMeaning(card, isReversed);
-    }
-  }
-
-  // Check for position mentions
-  for (const c of cards) {
-    const posWords = c.position.toLowerCase().replace(" / ", " ");
-    const words = posWords.split(" ");
-    for (const w of words) {
-      if (input.includes(w) && w.length > 2) {
-        return `**${c.card.name}** (${c.position})\n${formatCardMeaning(c.card, c.isReversed)}`;
-      }
-    }
-  }
-
-  // Love / relationship
-  if (input.includes("love") || input.includes("romance") || input.includes("relationship") || input.includes("heart")) {
-    return cards.map(({ card, isReversed }) => {
-      const text = isReversed ? card.reversed : card.love;
-      return `💕 **${card.name}**\n${text}`;
-    }).join("\n\n");
-  }
-
-  // Career / work
-  if (input.includes("career") || input.includes("work") || input.includes("job") || input.includes("business") || input.includes("money")) {
-    return cards.map(({ card, isReversed }) => {
-      const text = isReversed ? card.reversed : card.career;
-      return `💼 **${card.name}**\n${text}`;
-    }).join("\n\n");
-  }
-
-  // Yes / No
-  if (input.includes("yes") || input.includes("no") || input.includes("yesno") || input.includes("answer")) {
-    return cards.map(({ card, isReversed }) =>
-      `**${card.name}** ❓ ${card.yesno}`
-    ).join("\n\n");
-  }
-
-  // All / overall / summary / everything
-  if (input.includes("all") || input.includes("overall") || input.includes("summary") || input.includes("everything") || input.includes("every")) {
-    return cards.map(({ card, isReversed, position }) =>
-      `**${position}**\n${formatCardMeaning(card, isReversed)}`
-    ).join("\n\n---\n\n");
-  }
-
-  // Keyword matching
-  for (const { card, isReversed } of cards) {
-    if (card.keywords) {
-      for (const kw of card.keywords) {
-        if (input.includes(kw.toLowerCase())) {
-          return `"${kw}" relates to **${card.name}**:\n\n${formatCardMeaning(card, isReversed)}`;
-        }
-      }
-    }
-  }
-
-  return helpText();
-}
-
-function helpText(): string {
-  return `Try asking:
-
-• Meaning of a specific card
-• Meaning of a specific position
-• Full reading summary`;
-}
-
-function getWelcomeMessage(question: string): string {
-  let msg = `✨ I can help you explore your cards!`;
-  if (question) {
-    msg += `\n\nYour question: "${question}"`;
-  }
-  msg += `\n\n${helpText()}`;
-  return msg;
-}
 
 // ─────────────────────────────────────────────────────────────────
 //  Chat Page
@@ -241,17 +140,8 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const welcomeShown = useRef(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Show welcome message once cards are loaded
-  useEffect(() => {
-    if (selectedCards.length > 0 && !welcomeShown.current) {
-      welcomeShown.current = true;
-      setMessages([{ id: "welcome", role: "assistant", text: getWelcomeMessage(question) }]);
-    }
-  }, [selectedCards, question]);
 
   // Auto-scroll to bottom
   const scrollToBottom = useCallback(() => {
@@ -264,7 +154,7 @@ export default function ChatPage() {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  // Send message handler
+  // Send message handler — ready for API integration
   const handleSend = useCallback(() => {
     const text = inputText.trim();
     if (!text || isTyping) return;
@@ -272,17 +162,10 @@ export default function ChatPage() {
 
     const userMsg: ChatMessage = { id: `user-${Date.now()}`, role: "user", text };
     setMessages((prev) => [...prev, userMsg]);
-
-    // Simulate typing delay
     setIsTyping(true);
-    const delay = 400 + Math.random() * 600;
-    setTimeout(() => {
-      const response = generateResponse(text, selectedCards);
-      const botMsg: ChatMessage = { id: `bot-${Date.now()}`, role: "assistant", text: response };
-      setMessages((prev) => [...prev, botMsg]);
-      setIsTyping(false);
-    }, delay);
-  }, [inputText, isTyping, selectedCards]);
+    // TODO: Connect to AI API here
+    // Once API responds, add bot message and set isTyping(false)
+  }, [inputText, isTyping]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -412,9 +295,7 @@ export default function ChatPage() {
                       : "bg-[#E0DFE8] text-[#1C2D42]"
                   }`}
                 >
-                  {msg.text.split(/\*\*(.*?)\*\*/g).map((part, i) =>
-                    i % 2 === 1 ? <strong key={i} className="font-bold">{part}</strong> : part
-                  )}
+                  {msg.text}
                 </div>
               </motion.div>
             ))}
