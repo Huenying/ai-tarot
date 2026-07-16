@@ -281,7 +281,7 @@ export default function ResultPage() {
         )}
         {spreadId && SPREADS[spreadId] && (
           <span className="text-[10px] text-[#3D5470] font-heading tracking-widest uppercase">
-            {SPREADS[spreadId].nameZh} · {SPREADS[spreadId].name} · {SPREADS[spreadId].cards} cards
+            {SPREADS[spreadId].name} · {SPREADS[spreadId].cards} cards
           </span>
         )}
         <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-[#2B4C7E]/50 to-transparent mx-auto my-4" />
