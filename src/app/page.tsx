@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { withBasePath } from "@/lib/config";
 
 export default function SplashPage() {
   const router = useRouter();
@@ -11,7 +12,7 @@ export default function SplashPage() {
       {/* Background image */}
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/home-bg.jpeg')" }}
+        style={{ backgroundImage: `url('${withBasePath("/images/home-bg.jpeg")}')` }}
       />
 
       {/* Subtle dark overlay for readability */}
