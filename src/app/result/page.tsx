@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Card from "@/components/Card";
@@ -266,6 +266,55 @@ export default function ResultPage() {
     );
   }
 
+  // ── Render a single card (used in rows above) ──
+  const renderCard = useCallback((card: EnrichedCard, isReversed: boolean, i: number) => {
+    const isFlipped = flippedCards.has(i);
+    return (
+      <motion.div
+        key={card.id}
+        className="flex flex-col items-center w-full md:w-auto"
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: i * 0.25 }}
+      >
+        <span className="text-xs md:text-sm text-[#3D5470] font-heading tracking-widest mb-3 uppercase">
+          {positionLabels[i] || `Card ${i + 1}`}
+        </span>
+        <div className="mb-4">
+          <div onClick={() => !isFlipped && handleFlip(i)}>
+            <Card
+              card={card as any}
+              faceUp={isFlipped}
+              size="lg"
+              showName={false}
+              hideOverlay={true}
+              rotation={isFlipped && isReversed ? 180 : 0}
+              className={`${!isFlipped ? "cursor-pointer hover:scale-[1.03] transition-transform" : ""} shadow-2xl`}
+            />
+          </div>
+        </div>
+        <AnimatePresence>
+          {isFlipped && (
+            <motion.div
+              key="panel"
+              className="w-full"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.15 }}
+            >
+              <CardMeaningPanel
+                card={card}
+                isReversed={isReversed}
+                expanded={expandedCards.has(i)}
+                onToggle={() => handleToggleExpand(i)}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    );
+  }, [flippedCards, handleFlip, positionLabels]);
+
   return (
     <main className="relative min-h-screen py-8 px-4 md:px-8" style={{ backgroundColor: "#F0EFF5" }}>
       {/* ── Home icon top right ── */}
@@ -297,61 +346,21 @@ export default function ResultPage() {
 
       {/* ── Cards ── */}
       <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-center items-start gap-8 md:gap-10">
-          {selectedCards.map(({ card, isReversed }, i) => {
-            const isFlipped = flippedCards.has(i);
-
-            return (
-              <motion.div
-                key={card.id}
-                className="flex flex-col items-center w-full md:w-auto"
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: i * 0.25 }}
-              >
-                {/* Position label */}
-                <span className="text-xs md:text-sm text-[#3D5470] font-heading tracking-widest mb-3 uppercase">
-                  {positionLabels[i] || `Card ${i + 1}`}
-                </span>
-
-                {/* Card — click to flip */}
-                <div className="mb-4">
-                  <div onClick={() => !isFlipped && handleFlip(i)}>
-                    <Card
-                      card={card as any}
-                      faceUp={isFlipped}
-                      size="lg"
-                      showName={false}
-                      hideOverlay={true}
-                      rotation={isFlipped && isReversed ? 180 : 0}
-                      className={`${!isFlipped ? "cursor-pointer hover:scale-[1.03] transition-transform" : ""} shadow-2xl`}
-                    />
-                  </div>
-                </div>
-
-                {/* Title bar + expandable meaning (appears after flip) */}
-                <AnimatePresence>
-                  {isFlipped && (
-                    <motion.div
-                      key="panel"
-                      className="w-full"
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: 0.15 }}
-                    >
-                      <CardMeaningPanel
-                        card={card}
-                        isReversed={isReversed}
-                        expanded={expandedCards.has(i)}
-                        onToggle={() => handleToggleExpand(i)}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            );
-          })}
-        </div>
+        {selectedCards.length > 5 ? (
+          /* Split into two rows: first 5, then the rest */
+          <>
+            <div className="flex flex-col md:flex-row justify-center items-start gap-8 md:gap-10 mb-8">
+              {selectedCards.slice(0, 5).map(({ card, isReversed }, i) => renderCard(card, isReversed, i))}
+            </div>
+            <div className="flex flex-col md:flex-row justify-center items-start gap-8 md:gap-10">
+              {selectedCards.slice(5).map(({ card, isReversed }, i) => renderCard(card, isReversed, i + 5))}
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col md:flex-row justify-center items-start gap-8 md:gap-10">
+            {selectedCards.map(({ card, isReversed }, i) => renderCard(card, isReversed, i))}
+          </div>
+        )}
       </div>
 
       {/* ── Action buttons ── */}

@@ -161,8 +161,8 @@ function helpText(): string {
   return `Try asking:
 
 • Meaning of a specific card
-• A specific position
-• "Overall" — full reading summary`;
+• Meaning of a specific position
+• Full reading summary`;
 }
 
 function getWelcomeMessage(question: string): string {
@@ -322,7 +322,7 @@ export default function ChatPage() {
     <main className="min-h-screen flex" style={{ backgroundColor: "#F0EFF5" }}>
       {/* ── Left Sidebar ── */}
       <motion.aside
-        className="hidden md:flex flex-col w-[260px] shrink-0 border-r border-[#2B4C7E]/10 bg-[#E8E7EE]/50 p-5"
+        className="hidden md:flex flex-col w-[260px] shrink-0 border-r border-[#2B4C7E]/10 bg-[#E8E7EE]/50 p-5 overflow-y-auto"
         initial={{ x: -60, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
