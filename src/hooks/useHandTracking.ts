@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { getCameraStream, setCameraStream, releaseCameraStream } from "@/lib/camera-store";
+import { withBasePath } from "@/lib/config";
 import { HandLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
 
 // ─────────────────────────────────────────────────────────────────
@@ -432,7 +433,7 @@ export function useHandTracking(opts: UseHandTrackingOptions) {
     async function init() {
       try {
         // Load MediaPipe WASM files from our public directory
-        const vision = await FilesetResolver.forVisionTasks("/wasm");
+        const vision = await FilesetResolver.forVisionTasks(withBasePath("/wasm"));
 
         if (!mounted) return;
 

@@ -4,6 +4,7 @@ import { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
+import { withBasePath } from "@/lib/config";
 
 const RADIUS = 15;
 const CARD_W = 1.5;
@@ -28,7 +29,7 @@ function CylinderCard({
   const glowRef = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Mesh>(null);
 
-  const texture = useTexture("/images/card-cover.jpeg");
+  const texture = useTexture(withBasePath("/images/card-cover.jpeg"));
 
   useFrame((state) => {
     if (pivotRef.current) {
